@@ -20,15 +20,6 @@ namespace OtherEngine.Core.Collections
 			return (TType)Get(GetTypeString(typeof(TType)));
 		}
 
-		public void Remove(T item)
-		{
-			if (item == null)
-				throw new ArgumentNullException("item");
-			var typeKey = item.GetType().ToString();
-			if (Removed != null)
-				Removed(item);
-		}
-
 		#region implemented abstract members of EventedCollection
 
 		public override int Count { get { return dictionary.Count; } }
@@ -75,7 +66,7 @@ namespace OtherEngine.Core.Collections
 
 		private static string GetTypeString(Type type)
 		{
-			type.ToString();
+			return type.ToString();
 		}
 
 		private static string GetTypeString(object item)

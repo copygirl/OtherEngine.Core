@@ -9,7 +9,7 @@ namespace OtherEngine.Core
 
 		public Entity()
 		{
-			Components = new ComponentCollection(this);
+			Components = new ComponentCollection();
 		}
 	}
 }

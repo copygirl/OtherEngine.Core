@@ -56,6 +56,7 @@ namespace OtherEngine.Core.Collections
 				throw new ArgumentNullException("item");
 			if (RemoveInternal(item))
 				OnRemoved(item);
+			return true;
 		}
 
 		public void Clear()

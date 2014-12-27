@@ -27,6 +27,7 @@ namespace OtherEngine.Core.Collections
 		{
 			if (!set.Remove(entity))
 				throw new ArgumentException(String.Format("Entity {0} isn't in this {1}", entity, this), "entity");
+			return true;
 		}
 
 		protected override void ClearInternal()
