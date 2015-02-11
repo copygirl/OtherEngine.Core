@@ -2,7 +2,7 @@
 
 namespace OtherEngine.Core
 {
-	public interface IComponent
+	public interface IGameComponent
 	{
 	}
 }

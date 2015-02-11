@@ -29,22 +29,32 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="IComponent.cs" />
-    <Compile Include="ISystem.cs" />
-    <Compile Include="Collections\TypeKeyedCollection.cs" />
-    <Compile Include="Collections\ComponentCollection.cs" />
-    <Compile Include="Collections\SystemCollection.cs" />
     <Compile Include="Collections\EntityCollection.cs" />
-    <Compile Include="Collections\EventedCollection.cs" />
     <Compile Include="Components\GuidComponent.cs" />
+    <Compile Include="IGameComponent.cs" />
+    <Compile Include="GameEntity.cs" />
+    <Compile Include="Utility\EventExtensions.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="Collections\ComponentCollection.cs" />
+    <Compile Include="Systems\GameComponents.cs" />
+    <Compile Include="GameSystem.cs" />
+    <Compile Include="Exceptions\GameSystemException.cs" />
+    <Compile Include="Collections\TypedDefaultCollection.cs" />
+    <Compile Include="Collections\TypedCollection.cs" />
+    <Compile Include="Collections\TypedDictionary.cs" />
+    <Compile Include="Systems\GameSystemCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Collections\" />
     <Folder Include="Components\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Utility\" />
+    <Folder Include="Systems\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>

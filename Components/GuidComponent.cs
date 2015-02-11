@@ -2,7 +2,7 @@
 
 namespace OtherEngine.Core.Components
 {
-	public class GuidComponent : IComponent
+	public class GuidComponent : IGameComponent
 	{
 		public Guid Guid { get; set; }
 	}
