@@ -1,5 +1,4 @@
-﻿using System;
-using OtherEngine.Core.Systems;
+﻿using OtherEngine.Core.Systems;
 
 namespace OtherEngine.Core
 {

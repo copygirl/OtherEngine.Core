@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using OtherEngine.Core.Utility;
-using OtherEngine.Core.Exceptions;
 using System.Reflection;
 using OtherEngine.Core.Collections;
+using OtherEngine.Core.Exceptions;
 
 namespace OtherEngine.Core.Systems
 {
+	/// <summary>
+	/// Container class for the game's systems.
+	/// Handles enabling and disabling of systems, as well as errored ones.
+	/// </summary>
 	public class GameSystemCollection : IEnumerable<GameSystem>
 	{
 		private readonly SystemCollection _systems;

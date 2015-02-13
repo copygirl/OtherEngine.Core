@@ -1,22 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using OtherEngine.Core.Utility;
+﻿using System.Collections.Generic;
 using OtherEngine.Core.Collections;
 
 namespace OtherEngine.Core.Collections
 {
+	/// <summary>
+	/// Abstract collection which provides default values depending on its implementation.
+	/// </summary>
 	public abstract class TypedDefaultCollection<TType, TValue> : IEnumerable<TValue>
 	{
 		private readonly TypedDictionary<TType, TValue> _dictionary =
 			new TypedDictionary<TType, TValue>();
 
-		public IEnumerable<TValue> Values { get { return _dictionary.Values; } }
-
+		/// <summary>
+		/// Gets a value from the collection. If the value doesn't already exist in the
+		/// collection, the return value depends on the <see cref="TypedGetBehavior"/>.
+		/// </summary>
 		public TValue Get<T>(TypedGetBehavior behavior) where T : TType
 		{
 			TValue value = default(TValue);
-			if (!_dictionary.TryGetValue<T, TValue>(out value) && (behavior > TypedGetBehavior.Default)) {
+			if (!_dictionary.TryGetValue<T>(out value) && (behavior > TypedGetBehavior.Default)) {
 				value = NewValue<T>();
 				if (behavior >= TypedGetBehavior.CreateAndAdd)
 					_dictionary.Add<T>(value);
@@ -56,8 +58,11 @@ namespace OtherEngine.Core.Collections
 
 	public enum TypedGetBehavior
 	{
+		/// <summary>Returns default(T), null for reference values.</summary>
 		Default,
+		/// <summary>Returns a new value, but doesn't add it.</summary>
 		Create,
+		/// <summary>Returns a new value and adds it to the collection.</summary>
 		CreateAndAdd
 	}
 }

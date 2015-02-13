@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using OtherEngine.Core.Utility;
 using OtherEngine.Core.Collections;
 
 namespace OtherEngine.Core.Systems
 {
+	/// <summary>
+	/// Container class for the game's component types.
+	/// Allows watching for when components get added or removed from entities.
+	/// </summary>
 	public class GameComponents
 	{
 		private readonly ComponentHandlerCollection _handlers = new ComponentHandlerCollection();

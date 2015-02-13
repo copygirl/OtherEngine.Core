@@ -52,7 +52,6 @@
   <ItemGroup>
     <Folder Include="Collections\" />
     <Folder Include="Components\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Utility\" />
     <Folder Include="Systems\" />
     <Folder Include="Exceptions\" />

@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using OtherEngine.Core.Utility;
+using System.Linq;
 
 namespace OtherEngine.Core.Collections
 {
-	public class TypedCollection<T> : ICollection<T>
+	/// <summary>
+	/// Stores objects which can be looked up by their type.
+	/// There can only be one instance of a specific type in the collection. 
+	/// </summary>
+	public class TypedCollection<T> : ICollection<T> where T : class
 	{
 		private readonly TypedDictionary<T, T> _dictionary = new TypedDictionary<T, T>();
 
+		/// <summary>
+		/// Returns the instance of type TType stored in this collection, or null if none.
+		/// </summary>
 		public TType Get<TType>() where TType : T
 		{
-			return _dictionary.Get<TType, TType>();
+			T item;
+			return (_dictionary.TryGetValue<TType>(out item) ? (TType)item : null);
 		}
 
 		protected virtual void OnAdded(T value) {  }
@@ -35,7 +41,8 @@ namespace OtherEngine.Core.Collections
 
 		public bool Contains(T item)
 		{
-			return ((item != null) ? _dictionary.ContainsKey(item.GetType()) : false);
+			T i;
+			return ((item != null) && _dictionary.TryGetValue(item.GetType(), out i) && (item == i));
 		}
 
 		public bool Remove(T item)
@@ -49,8 +56,10 @@ namespace OtherEngine.Core.Collections
 
 		public void Clear()
 		{
-
+			var items = _dictionary.Values.ToList();
 			_dictionary.Clear();
+			foreach (var item in items)
+				OnRemoved(item);
 		}
 
 		public void CopyTo(T[] array, int arrayIndex)

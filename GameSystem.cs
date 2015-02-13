@@ -1,9 +1,10 @@
-﻿using System;
-using OtherEngine.Core.Utility;
-using OtherEngine.Core.Exceptions;
-
-namespace OtherEngine.Core
+﻿namespace OtherEngine.Core
 {
+	/// <summary>
+	/// Takes care of the game's logic, one piece at a time,
+	/// by updating the components of entities, handling and firing events.
+	/// Can be enabled, disabled and possibly suspended.
+	/// </summary>
 	public abstract class GameSystem
 	{
 		protected internal Game Game { get; internal set; }

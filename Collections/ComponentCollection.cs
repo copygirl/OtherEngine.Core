@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OtherEngine.Core.Collections
+﻿namespace OtherEngine.Core.Collections
 {
 	public class ComponentCollection : TypedCollection<IGameComponent>
 	{
