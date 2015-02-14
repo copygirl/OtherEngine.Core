@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using OtherEngine.Core.Collections;
 using OtherEngine.Core.Exceptions;
+using OtherEngine.Core.Events;
 
 namespace OtherEngine.Core.Systems
 {
@@ -15,6 +16,10 @@ namespace OtherEngine.Core.Systems
 		private readonly SystemCollection _systems;
 
 		private readonly Game _game;
+
+		public readonly GameEvent<SystemEnabledEvent> Enabled = new GameEvent<SystemEnabledEvent>("Game.Systems.Enabled", null);
+		public readonly GameEvent<SystemDisabledEvent> Disabled = new GameEvent<SystemDisabledEvent>("Game.Systems.Disabled", null);
+		public readonly GameEvent<SystemErroredEvent> Errored = new GameEvent<SystemErroredEvent>("Game.Systems.Errored", null);
 
 		public GameSystemCollection(Game game)
 		{
@@ -33,12 +38,14 @@ namespace OtherEngine.Core.Systems
 			if (system.State >= GameSystemState.Enabled) return;
 
 			try {
-				system.OnEnabled();
 				system.State = GameSystemState.Enabled;
+				system.OnEnabled();
+				Enabled.Fire(new SystemEnabledEvent(system));
 			} catch (Exception ex) {
-				system.State = GameSystemState.Errored;
-				throw new GameSystemException(system,
-					String.Format("Exception when enabling '{0}': {1}", this, ex.Message), ex);
+				var gameEx = new GameSystemException(system, String.Format(
+					"Exception when enabling {0}: {1}", system, ex.Message));
+				OnError(system, gameEx);
+				throw gameEx;
 			}
 		}
 		public void Disable<T>() where T : GameSystem
@@ -47,13 +54,25 @@ namespace OtherEngine.Core.Systems
 			if ((system == null) || (system.State <= GameSystemState.Disabled)) return;
 
 			try {
-				system.OnDisabled();
 				system.State = GameSystemState.Disabled;
+				system.OnDisabled();
+				Disabled.Fire(new SystemDisabledEvent(system));
 			} catch (Exception ex) {
-				system.State = GameSystemState.Errored;
-				throw new GameSystemException(system,
-					String.Format("Exception when disabling '{0}': {1}", this, ex.Message), ex);
+				var gameEx = new GameSystemException(system, String.Format(
+					"Exception when disabling {0}: {1}", system, ex.Message));
+				OnError(system, gameEx);
+				throw gameEx;
 			}
+		}
+
+		public void OnError(GameSystem system, Exception ex)
+		{
+			if (system == null)
+				throw new ArgumentNullException("system");
+			// TODO: Do something with exception.
+			system.State = GameSystemState.Errored;
+			Console.Error.WriteLine(ex);
+			Errored.Fire(new SystemErroredEvent(system, ex));
 		}
 
 		#region IEnumerable implementation
@@ -87,15 +106,42 @@ namespace OtherEngine.Core.Systems
 					return system;
 				} catch (MissingMethodException ex) {
 					throw new GameSystemException(typeof(TSystem),
-						String.Format("'{0}' does not have a parameterless constructor", typeof(TSystem)), ex);
+						String.Format("{0} does not have a parameterless constructor", typeof(TSystem)), ex);
 				} catch (TargetInvocationException ex) {
 					throw new GameSystemException(typeof(TSystem),
-						String.Format("Exception in constructor of '{0}': {1}", typeof(TSystem), ex.Message), ex);
+						String.Format("Exception in constructor of {0}: {1}", typeof(TSystem), ex.Message), ex);
 				} catch (Exception ex) {
 					throw new GameSystemException(typeof(TSystem),
-						String.Format("Exception when constructing '{0}': {1}", typeof(TSystem), ex.Message), ex);
+						String.Format("Exception when constructing {0}: {1}", typeof(TSystem), ex.Message), ex);
 				}
 			}
+		}
+	}
+
+	public class SystemEvent : IEvent
+	{
+		public GameSystem System { get; private set; }
+
+		public SystemEvent(GameSystem system)
+		{
+			System = system;
+		}
+	}
+	public class SystemEnabledEvent : SystemEvent
+	{
+		public SystemEnabledEvent(GameSystem system) : base(system) {  }
+	}
+	public class SystemDisabledEvent : SystemEvent
+	{
+		public SystemDisabledEvent(GameSystem system) : base(system) {  }
+	}
+	public class SystemErroredEvent : SystemEvent
+	{
+		public Exception Exception { get; private set; }
+
+		public SystemErroredEvent(GameSystem system, Exception exception) : base(system)
+		{
+			Exception = exception;
 		}
 	}
 }

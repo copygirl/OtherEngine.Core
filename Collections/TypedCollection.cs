@@ -18,7 +18,7 @@ namespace OtherEngine.Core.Collections
 		public TType Get<TType>() where TType : T
 		{
 			T item;
-			return (_dictionary.TryGetValue<TType>(out item) ? (TType)item : null);
+			return (TType)(_dictionary.TryGetValue<TType>(out item) ? item : null);
 		}
 
 		protected virtual void OnAdded(T value) {  }
