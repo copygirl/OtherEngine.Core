@@ -11,17 +11,22 @@ namespace OtherEngine.Core.Collections
 		private readonly TypedDictionary<TType, TValue> _dictionary =
 			new TypedDictionary<TType, TValue>();
 
+		public void Add<T>(TValue item) where T : TType
+		{
+			_dictionary.Add<T>(item);
+		}
+
 		/// <summary>
 		/// Gets a value from the collection. If the value doesn't already exist in the
 		/// collection, the return value depends on the <see cref="TypedGetBehavior"/>.
 		/// </summary>
 		public TValue Get<T>(TypedGetBehavior behavior) where T : TType
 		{
-			TValue value = default(TValue);
+			TValue value;
 			if (!_dictionary.TryGetValue<T>(out value) && (behavior > TypedGetBehavior.Default)) {
 				value = NewValue<T>();
 				if (behavior >= TypedGetBehavior.CreateAndAdd)
-					_dictionary.Add<T>(value);
+					Add<T>(value);
 			}
 			return value;
 		}
@@ -50,6 +55,11 @@ namespace OtherEngine.Core.Collections
 
 	public abstract class TypedDefaultCollection<TType> : TypedDefaultCollection<TType, TType>
 	{
+		public new void Add<T>(T item) where T : TType
+		{
+			base.Add<T>(item);
+		}
+
 		public new T Get<T>(TypedGetBehavior behavior) where T : TType
 		{
 			return (T)base.Get<T>(behavior);
