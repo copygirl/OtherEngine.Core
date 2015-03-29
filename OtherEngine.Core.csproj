@@ -42,13 +42,16 @@
     <Compile Include="GameSystem.cs" />
     <Compile Include="Exceptions\GameSystemException.cs" />
     <Compile Include="Collections\TypedDefaultCollection.cs" />
-    <Compile Include="Collections\TypedCollection.cs" />
     <Compile Include="Collections\TypedDictionary.cs" />
-    <Compile Include="Systems\GameComponents.cs" />
-    <Compile Include="Systems\GameSystemCollection.cs" />
     <Compile Include="Events\GameEvent.cs" />
     <Compile Include="Events\IEventListener.cs" />
     <Compile Include="Events\IEvent.cs" />
+    <Compile Include="Systems\CoreSystemHandler.cs" />
+    <Compile Include="Systems\CoreEventRegistry.cs" />
+    <Compile Include="Events\IComponentWatcher.cs" />
+    <Compile Include="Events\ISystemWatcher.cs" />
+    <Compile Include="Systems\SystemExtensions.cs" />
+    <Compile Include="Collections\TypedCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

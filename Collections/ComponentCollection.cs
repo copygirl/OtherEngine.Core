@@ -1,4 +1,6 @@
-﻿namespace OtherEngine.Core.Collections
+﻿using System;
+
+namespace OtherEngine.Core.Collections
 {
 	public class ComponentCollection : TypedCollection<IGameComponent>
 	{
@@ -11,11 +13,11 @@
 
 		protected override void OnAdded(IGameComponent component)
 		{
-			Entity.Game.Components.OnAdded(Entity, component);
+
 		}
 		protected override void OnRemoved(IGameComponent component)
 		{
-			Entity.Game.Components.OnRemoved(Entity, component);
+
 		}
 	}
 }

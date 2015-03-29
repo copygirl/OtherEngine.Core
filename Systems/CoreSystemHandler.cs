@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using OtherEngine.Core.Collections;
-using OtherEngine.Core.Exceptions;
 using OtherEngine.Core.Events;
+using OtherEngine.Core.Exceptions;
 
 namespace OtherEngine.Core.Systems
 {
@@ -11,20 +11,15 @@ namespace OtherEngine.Core.Systems
 	/// Container class for the game's systems.
 	/// Handles enabling and disabling of systems, as well as errored ones.
 	/// </summary>
-	public class GameSystemCollection : IEnumerable<GameSystem>
+	public class CoreSystemHandler : IEnumerable<GameSystem>
 	{
+		private readonly Game _game;
 		private readonly SystemCollection _systems;
 
-		private readonly Game _game;
-
-		public readonly GameEvent<SystemEnabledEvent> Enabled = new GameEvent<SystemEnabledEvent>("Game.Systems.Enabled", null);
-		public readonly GameEvent<SystemDisabledEvent> Disabled = new GameEvent<SystemDisabledEvent>("Game.Systems.Disabled", null);
-		public readonly GameEvent<SystemErroredEvent> Errored = new GameEvent<SystemErroredEvent>("Game.Systems.Errored", null);
-
-		public GameSystemCollection(Game game)
+		internal CoreSystemHandler(Game game)
 		{
 			_game = game;
-			_systems = new SystemCollection(game);
+			_systems = new SystemCollection(this);
 		}
 
 		public T Get<T>() where T : GameSystem
@@ -35,12 +30,16 @@ namespace OtherEngine.Core.Systems
 		public void Enable<T>() where T : GameSystem
 		{
 			var system = _systems.Get<T>(TypedGetBehavior.CreateAndAdd);
-			if (system.State >= GameSystemState.Enabled) return;
+			if (system.State >= GameSystemState.Running) return;
 
 			try {
-				system.State = GameSystemState.Enabled;
+
+				system.State = GameSystemState.Running;
 				system.OnEnabled();
-				Enabled.Fire(new SystemEnabledEvent(system));
+				_game.Events.GetSystems<ISystemWatcher>().CheckedForeach(
+					s => ((ISystemWatcher)s).OnSystemEnabled(system));
+				_game.Events.OnSystemEnabled(system);
+
 			} catch (Exception ex) {
 				var gameEx = new GameSystemException(system, String.Format(
 					"Exception when enabling {0}: {1}", system, ex.Message));
@@ -54,9 +53,13 @@ namespace OtherEngine.Core.Systems
 			if ((system == null) || (system.State <= GameSystemState.Disabled)) return;
 
 			try {
+
 				system.State = GameSystemState.Disabled;
 				system.OnDisabled();
-				Disabled.Fire(new SystemDisabledEvent(system));
+				_game.Events.OnSystemDisabled(system);
+				_game.Events.GetSystems<ISystemWatcher>().CheckedForeach(
+					s => ((ISystemWatcher)s).OnSystemDisabled(system));
+
 			} catch (Exception ex) {
 				var gameEx = new GameSystemException(system, String.Format(
 					"Exception when disabling {0}: {1}", system, ex.Message));
@@ -69,10 +72,13 @@ namespace OtherEngine.Core.Systems
 		{
 			if (system == null)
 				throw new ArgumentNullException("system");
-			// TODO: Do something with exception.
 			system.State = GameSystemState.Errored;
+			_game.Events.OnSystemDisabled(system);
+			_game.Events.GetSystems<ISystemWatcher>().CheckedForeach(
+				s => ((ISystemWatcher)s).OnSystemErrored(system));
+
+			// TODO: Do something with exception.
 			Console.Error.WriteLine(ex);
-			Errored.Fire(new SystemErroredEvent(system, ex));
 		}
 
 		#region IEnumerable implementation
@@ -91,18 +97,18 @@ namespace OtherEngine.Core.Systems
 
 		private class SystemCollection : TypedDefaultCollection<GameSystem>
 		{
-			private readonly Game _game;
+			private readonly CoreSystemHandler _system;
 
-			public SystemCollection(Game game)
+			public SystemCollection(CoreSystemHandler system)
 			{
-				_game = game;
+				_system = system;
 			}
 
 			protected override GameSystem NewValue<TSystem>()
 			{
 				try {
 					var system = Activator.CreateInstance<TSystem>();
-					system.Game = _game;
+					system.Game = _system._game;
 					return system;
 				} catch (MissingMethodException ex) {
 					throw new GameSystemException(typeof(TSystem),
@@ -115,33 +121,6 @@ namespace OtherEngine.Core.Systems
 						String.Format("Exception when constructing {0}: {1}", typeof(TSystem), ex.Message), ex);
 				}
 			}
-		}
-	}
-
-	public class SystemEvent : IEvent
-	{
-		public GameSystem System { get; private set; }
-
-		public SystemEvent(GameSystem system)
-		{
-			System = system;
-		}
-	}
-	public class SystemEnabledEvent : SystemEvent
-	{
-		public SystemEnabledEvent(GameSystem system) : base(system) {  }
-	}
-	public class SystemDisabledEvent : SystemEvent
-	{
-		public SystemDisabledEvent(GameSystem system) : base(system) {  }
-	}
-	public class SystemErroredEvent : SystemEvent
-	{
-		public Exception Exception { get; private set; }
-
-		public SystemErroredEvent(GameSystem system, Exception exception) : base(system)
-		{
-			Exception = exception;
 		}
 	}
 }

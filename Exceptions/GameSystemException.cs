@@ -26,5 +26,24 @@ namespace OtherEngine.Core.Exceptions
 			System = system;
 		}
 	}
+
+	public class GameSystemStateException : GameSystemException
+	{
+		public GameSystemState State { get; private set; }
+		public GameSystemState MinimumState { get; private set; }
+
+		public GameSystemStateException(GameSystem system, GameSystemState minimumState, string message) : base(system, message)
+		{
+			State = system.State;
+			MinimumState = minimumState;
+		}
+		public GameSystemStateException(GameSystem system, GameSystemState minimumState)
+			: base(system, minimumState, GetDefaultMessage(system, minimumState)) {  }
+
+		private static string GetDefaultMessage(GameSystem system, GameSystemState minimumState)
+		{
+			return String.Format("{0} is {1}, needs to be {2}", system, system.State, minimumState);
+		}
+	}
 }
 

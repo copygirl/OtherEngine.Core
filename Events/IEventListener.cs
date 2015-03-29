@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OtherEngine.Core.Events
+﻿namespace OtherEngine.Core.Events
 {
 	public interface IEventListener<T> where T : IEvent
 	{
