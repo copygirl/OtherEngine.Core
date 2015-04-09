@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using OtherEngine.Core.Events;
+﻿using System.Text.RegularExpressions;
 
 namespace OtherEngine.Core
 {
@@ -17,20 +15,17 @@ namespace OtherEngine.Core
 
 		public Game Game { get; internal set; }
 		public GameSystemState State { get; internal set; }
-		
-		public bool IsRunning { get { return (State >= GameSystemState.Running); } }
-		public bool IsEnabled { get { return (State >= GameSystemState.Suspended); } }
-		public bool IsSuspended { get { return (State == GameSystemState.Suspended); } }
-		public bool IsDisabled { get { return (State <= GameSystemState.Disabled); } }
-		public bool IsErrored { get { return (State == GameSystemState.Errored); } }
-
-		protected internal virtual void OnEnabled() {  }
-		protected internal virtual void OnDisabled() {  }
 
 		protected GameSystem()
 		{
 			Name = _matchTrailingSystem.Replace(GetType().Name, "");
 		}
+
+		public void Enable() { Game.Systems.Enable(this); }
+		public void Disable() { Game.Systems.Disable(this); }
+
+		protected internal virtual void OnEnabled() {  }
+		protected internal virtual void OnDisabled() {  }
 
 		public sealed override string ToString()
 		{
@@ -56,6 +51,15 @@ namespace OtherEngine.Core
 		Disabled,
 		Suspended,
 		Running
+	}
+
+	public static class GameSystemStateExtensions
+	{
+		public static bool IsRunning(this GameSystemState state) { return (state >= GameSystemState.Running); }
+		public static bool IsEnabled(this GameSystemState state) { return (state >= GameSystemState.Suspended); }
+		public static bool IsSuspended(this GameSystemState state) { return (state == GameSystemState.Suspended); }
+		public static bool IsDisabled(this GameSystemState state) { return (state <= GameSystemState.Disabled); }
+		public static bool IsErrored(this GameSystemState state) { return (state == GameSystemState.Errored); }
 	}
 }
 
