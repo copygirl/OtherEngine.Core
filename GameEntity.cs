@@ -1,78 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using OtherEngine.Core.Utility;
-using OtherEngine.Core.Components;
+using OtherEngine.Core.Data;
 
 namespace OtherEngine.Core
 {
 	/// <summary>
-	/// Empty game object which holds a number of <see cref="IGameComponent"/>s.
+	/// Empty game object which holds a number of <see cref="GameComponent"/>s which can be looked up using their type.
+	/// While <see cref="GameData&lt;GameComponent&gt;"/> is just a data container, GameEntities will notify the engine whenever components
+	/// are added or removed, which allows them to be tracked by <see cref="GameSystem"/>s.
 	/// </summary>
-	public sealed class GameEntity : IEnumerable<IGameComponent>
+	public sealed class GameEntity : GameData<GameComponent>
 	{
-		private IComponentNotifier _notifier;
-		private Dictionary<string, IGameComponent> _components =
-			new Dictionary<string, IGameComponent>();
+		public Game Game { get; private set; }
 
-		public GameEntity(IComponentNotifier notifier)
+		public GameEntity(Game game)
 		{
-			_notifier = notifier;
+			if (game == null)
+				throw new ArgumentNullException("game");
+			Game = game;
 		}
 
-		#region Components
-
-		public void Add(IGameComponent component)
+		public override void Add(GameComponent component)
 		{
-			if (component == null)
-				throw new ArgumentNullException("component");
-			var key = TypeUtils.ToString(component);
-			if (_components.ContainsKey(key))
-				throw new ArgumentException(String.Format(
-					"{0} is already in {1}", component, this), "component");
-			_components.Add(key, component);
-
-			_notifier.OnComponentAdded(this, component);
+			base.Add(component);
+			Game.OnComponentAdded(this, component);
 		}
 
-		public void Remove(IGameComponent component)
+		public override void Remove(GameComponent component)
 		{
-			if (component == null)
-				throw new ArgumentNullException("component");
-			var key = TypeUtils.ToString(component);
-			if (!_components.Remove(key))
-				throw new ArgumentException(String.Format(
-					"{0} isn't in {1}", component, this), "component");
-
-			_notifier.OnComponentRemoved(this, component);
+			base.Remove(component);
+			Game.OnComponentRemoved(this, component);
 		}
-
-		public IGameComponent Get(string typeString)
-		{
-			if (typeString == null)
-				throw new ArgumentNullException("typeString");
-			IGameComponent component;
-			return (_components.TryGetValue(typeString, out component) ? component : null);
-		}
-		public T Get<T>() where T : IGameComponent
-		{
-			return (T)Get(TypeUtils.ToString<T>());
-		}
-
-		#endregion
-
-		#region IEnumerable implementation
-
-		public IEnumerator<IGameComponent> GetEnumerator()
-		{
-			return _components.Values.GetEnumerator();
-		}
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
 	}
 }
 

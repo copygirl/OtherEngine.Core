@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using OtherEngine.Core.Components;
-using OtherEngine.Core.Events;
 using OtherEngine.Core.Exceptions;
+using OtherEngine.Core.Data;
 
 namespace OtherEngine.Core
 {
@@ -11,9 +11,9 @@ namespace OtherEngine.Core
 	/// </summary>
 	public class CoreSystemHandler
 	{
-		private IDictionary<Type, GameEntity> _systems = new Dictionary<Type, GameEntity>();
+		readonly IDictionary<Type, GameEntity> _systems = new Dictionary<Type, GameEntity>();
 
-		private readonly Game _game;
+		readonly Game _game;
 
 		internal CoreSystemHandler(Game game)
 		{
@@ -26,7 +26,7 @@ namespace OtherEngine.Core
 		public TSystem Get<TSystem>() where TSystem : GameSystem, new()
 		{
 			var container = GetContainer<TSystem>().Get<GameSystemContainerComponent>();
-			return (TSystem)(container.System ?? (container.System = new TSystem(){
+			return (TSystem)(container.System ?? (container.System = new TSystem{
 				Game = _game, State = GameSystemState.Disabled }));
 		}
 
@@ -65,9 +65,7 @@ namespace OtherEngine.Core
 
 			GameEntity container;
 			if (!_systems.TryGetValue(type, out container))
-				_systems.Add(type, (container = new GameEntity(_game){
-					new GameSystemContainerComponent(type),
-					new GameSystemInjectInfoComponent() }));
+				_systems.Add(type, (container = new GameEntity(_game){ new GameSystemContainerComponent(type) }));
 			return container;
 		}
 
@@ -128,8 +126,8 @@ namespace OtherEngine.Core
 		}
 
 		/// <summary>
-		/// Called when a GameSystem caused an error, for example as the system
-		/// is being enabled or disabled or an event fired at it throws and exception.
+		/// Called when a GameSystem caused an error, for example as the system is
+		/// being enabled or disabled or an event fired at it throws an exception.
 		/// </summary>
 		internal Exception OnException(GameSystem system, Exception ex)
 		{

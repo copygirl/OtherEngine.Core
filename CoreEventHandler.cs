@@ -16,7 +16,7 @@ namespace OtherEngine.Core
 	/// </summary>
 	public class CoreEventHandler
 	{
-		private IDictionary<Type, IDictionary<GameSystem, Action<IGameEvent>>> _events =
+		private readonly IDictionary<Type, IDictionary<GameSystem, Action<IGameEvent>>> _events =
 			new Dictionary<Type, IDictionary<GameSystem, Action<IGameEvent>>>();
 
 		private readonly Game _game;
@@ -96,75 +96,61 @@ namespace OtherEngine.Core
 
 		// TODO: Add attribute for base classes which are not supposed to be fired as events.
 		//       For example: GameSystemEvent and GameComponentEvent.
+		// TODO: Allow events with multiple generic parameters.
 
-		// FIXME: Events currently not being fired currently.
-		//        Some fire multiple times, and they're out of order.
-
-		/// <summary>
-		/// Fires an event to all GameSystems that are listening to it.
-		/// Example fire order:
-		/// - GameComponentAddedEvent<TestComponent>
-		/// - GameComponentAddedEvent<IGameComponent>
-		/// - GameComponentEvent<TestComponent>
-		/// - GameComponentEvent<IGameComponent>
-		/// - IGameEvent
-		/// </summary>
 		public void Fire<TEvent>(params object[] arguments) where TEvent : IGameEvent
 		{
 			Fire(typeof(TEvent), arguments);
 		}
-		public void Fire(Type eventType, Type genericType, params object[] arguments)
+		public void Fire(Type eventType, params object[] arguments)
 		{
 			if (eventType == null)
 				throw new ArgumentNullException("eventType");
-			if (genericType == null)
-				throw new ArgumentNullException("genericType");
+			if (arguments == null)
+				throw new ArgumentNullException("arguments");
 
-			eventType = eventType.MakeGenericType(genericType);
-			if (typeof(IGameEvent).IsAssignableFrom(eventType))
-				throw new ArgumentException(string.Format(
-					"{0} is not an IGameEvent", eventType), "eventType");
-			
-			Fire(eventType, arguments);
+			var gameEvent = (IGameEvent)Activator.CreateInstance(eventType, arguments);
+			FireRecursive(eventType, gameEvent);
+			FireSingle(typeof(IGameEvent), gameEvent);
 		}
 
-		private void Fire(Type eventType, params object[] arguments)
+		public void Fire(Type eventTypeDef, Type[] typeArgs, params object[] arguments)
 		{
-			if (eventType.IsGenericType)
-				FireGeneric(eventType, arguments);
-			FireNonGeneric(eventType, (IGameEvent)Activator.CreateInstance(eventType, arguments));
-		}
-		private void FireNonGeneric(Type eventType, IGameEvent gameEvent)
-		{
-			if (typeof(IGameEvent).IsAssignableFrom(eventType.BaseType))
-				FireNonGeneric(eventType.BaseType, gameEvent);
-			else foreach (var i in eventType.GetInterfaces())
-				FireNonGeneric(i, gameEvent);
+			// TODO: Caching this would probably make sense.
+
+			if (eventTypeDef == null)
+				throw new ArgumentNullException("eventTypeDef");
+			if (typeArgs == null)
+				throw new ArgumentNullException("typeArgs");
 			
+			Type eventType;
+			try { eventType = eventTypeDef.MakeGenericType(typeArgs); }
+			catch (Exception ex) {
+				throw new ArgumentException(String.Format(
+					"Could not create generic type of {0} using type arguments [{1}]: {2}",
+					eventType, string.Join(",", typeArgs), ex.Message), ex);
+			}
+
+			IGameEvent gameEvent;
+			gameEvent = (IGameEvent)Activator.CreateInstance(eventType, arguments);
+
+			FireRecursive(eventType, gameEvent, eventTypeDef);
+			FireSingle(typeof(IGameEvent), gameEvent);
+		}
+		public void Fire(Type eventTypeDef, Type typeArg, params object[] arguments)
+		{
+			Fire(eventTypeDef, new { typeArg }, arguments);
+		}
+
+		private void FireRecursive(Type eventType, IGameEvent gameEvent, Type eventTypeDef = null)
+		{
 			FireSingle(eventType, gameEvent);
-		}
 
-		private void FireGeneric(Type eventType, object[] arguments)
-		{
-			// TODO: Support multiple generic type arguments?
-			var def = eventType.GetGenericTypeDefinition();
-			var arg = eventType.GetGenericArguments()[0];
-			var constraint = def.GetGenericArguments()[0].GetGenericParameterConstraints()[0];
-			if (arg == constraint) return;
-			FireGeneric(def, arg, constraint, arguments);
-		}
-		private void FireGeneric(Type eventTypeDef, Type arg, Type constraint, object[] arguments)
-		{
-			if (constraint.IsAssignableFrom(arg.BaseType) &&
-				!arg.BaseType.IsGenericTypeDefinition) {
-				arg = arg.BaseType;
-				FireGeneric(eventTypeDef, arg, constraint, arguments);
-			} else if (arg.GetInterfaces().Contains(constraint)) {
-				// TODO: Support interface inheritance.
-				arg = constraint;
-			} else return;
-			arg = eventTypeDef.MakeGenericType(arg);
-			FireSingle(arg, (IGameEvent)Activator.CreateInstance(arg, arguments));
+			if (eventType.IsGenericType)
+
+			if (typeof(IGameEvent).IsAssignableFrom(eventType.BaseType))
+				FireRecursive(eventType.BaseType, gameEvent);
+			// TODO: What about interfaces?
 		}
 
 		/// <summary>

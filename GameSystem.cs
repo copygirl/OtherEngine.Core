@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using OtherEngine.Core.Data;
 
 namespace OtherEngine.Core
 {
@@ -9,7 +10,7 @@ namespace OtherEngine.Core
 	/// </summary>
 	public abstract class GameSystem
 	{
-		private static readonly Regex _matchTrailingSystem = new Regex("System$");
+		static readonly Regex _matchTrailingSystem = new Regex("System$");
 
 		public string Name { get; private set; }
 

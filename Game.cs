@@ -1,10 +1,8 @@
-﻿using System;
-using OtherEngine.Core.Components;
-using OtherEngine.Core.Events;
+﻿using OtherEngine.Core.Data;
 
 namespace OtherEngine.Core
 {
-	public class Game : IComponentNotifier
+	public class Game
 	{
 		public CoreSystemHandler Systems { get; private set; }
 		public CoreEventHandler Events { get; private set; }
@@ -15,19 +13,15 @@ namespace OtherEngine.Core
 			Events = new CoreEventHandler(this);
 		}
 
-		#region IComponentNotifier implementation
-
-		public void OnComponentAdded(GameEntity entity, IGameComponent component)
+		internal void OnComponentAdded(GameEntity entity, GameComponent component)
 		{
-			Events.Fire(typeof(GameComponentAddedEvent<>), component.GetType(), entity, component);
+			//Events.Fire(typeof(GameComponentAddedEvent<>), component.GetType(), entity, component);
 		}
 
-		public void OnComponentRemoved(GameEntity entity, IGameComponent component)
+		internal void OnComponentRemoved(GameEntity entity, GameComponent component)
 		{
-			Events.Fire(typeof(GameComponentRemovedEvent<>), component.GetType(), entity, component);
+			//Events.Fire(typeof(GameComponentRemovedEvent<>), component.GetType(), entity, component);
 		}
-
-		#endregion
 	}
 }
 
