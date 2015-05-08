@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using OtherEngine.Core.Components;
-using OtherEngine.Core.Exceptions;
 using OtherEngine.Core.Data;
+using OtherEngine.Core.Events;
+using OtherEngine.Core.Exceptions;
+using OtherEngine.Core.Systems;
 
 namespace OtherEngine.Core
 {
 	/// <summary>
-	/// Handles enabling, disabling and erroring of other GameSystems.
+	/// Handles enabling, disabling and erroring of all <see cref="GameSystem"/>s.
 	/// </summary>
 	public class CoreSystemHandler
 	{
-		readonly IDictionary<Type, GameEntity> _systems = new Dictionary<Type, GameEntity>();
-
+		readonly IDictionary<Type, GameData> _systems = new Dictionary<Type, GameData>();
 		readonly Game _game;
 
 		internal CoreSystemHandler(Game game)
@@ -21,31 +23,39 @@ namespace OtherEngine.Core
 		}
 
 		/// <summary>
-		/// Returns a GameSystem for the specified GameSystem type.
+		/// Returns a <see cref="GameSystem"/> for the specified GameSystem type, creating it
+		/// if necessary. Returns null if there was an exception instantiating it.
 		/// </summary>
 		public TSystem Get<TSystem>() where TSystem : GameSystem, new()
 		{
 			var container = GetContainer<TSystem>().Get<GameSystemContainerComponent>();
-			return (TSystem)(container.System ?? (container.System = new TSystem{
-				Game = _game, State = GameSystemState.Disabled }));
+			if ((container.System == null) && !container.ConstructorThrewException) {
+				try {
+					container.System = new TSystem { Game = _game, State = GameSystemState.Disabled };
+				} catch {
+					container.ConstructorThrewException = true;
+					throw;
+				}
+			}
+			return (TSystem)container.System;
 		}
 
 		#region GameSystem container
 
 		/// <summary>
-		/// Returns a system container GameEntity for the specified GameSystem type
-		/// which can be used to store information related to that GameSystem.
+		/// Returns a system container <see cref="GameData"/> for the specified <see cref="GameSystem"/>
+		/// type which can be used to store information related to that GameSystem.
 		/// </summary>
-		public GameEntity GetContainer<TSystem>() where TSystem : GameSystem, new()
+		public GameData GetContainer<TSystem>() where TSystem : GameSystem, new()
 		{
 			return GetContainer(typeof(TSystem));
 		}
 
 		/// <summary>
-		/// Returns a system container GameEntity for the specified GameSystem
+		/// Returns a system container <see cref="GameData"/> for the specified <see cref="GameSystem"/>
 		/// which can be used to store information related to that GameSystem.
 		/// </summary>
-		public GameEntity GetContainer(GameSystem system) 
+		public GameData GetContainer(GameSystem system) 
 		{
 			if (system == null)
 				throw new ArgumentNullException("system");
@@ -53,19 +63,19 @@ namespace OtherEngine.Core
 		}
 
 		/// <summary>
-		/// Returns a system container GameEntity for the specified GameSystem type
+		/// Returns a system container <see cref="GameData"/> for the specified <see cref="GameSystem"/>
 		/// which can be used to store information related to that GameSystem.
 		/// </summary>
-		public GameEntity GetContainer(Type type)
+		public GameData GetContainer(Type type)
 		{
 			if (type == null)
 				throw new ArgumentNullException("type");
 			if (!type.IsSubclassOf(typeof(GameSystem)))
 				throw new ArgumentException(string.Format("{0} is not a GameSystem", type), "type");
 
-			GameEntity container;
+			GameData container;
 			if (!_systems.TryGetValue(type, out container))
-				_systems.Add(type, (container = new GameEntity(_game){ new GameSystemContainerComponent(type) }));
+				_systems.Add(type, (container = new GameData { new GameSystemContainerComponent(type) }));
 			return container;
 		}
 
@@ -89,57 +99,28 @@ namespace OtherEngine.Core
 
 			var previousState = system.State;
 			system.State = state;
-
-			if (action != null) {
-				try { action(system); }
-				catch (GameSystemException) { throw; }
-				catch (Exception ex) {
-					throw OnException(system, new GameSystemException(system, string.Format(
-						"Exception when setting state of {0} to {1}: {2}", system, state, ex), ex));
-				}
-			}
-
-			FireSystemStateChanged(system, previousState);
+			action(system);
 		}
 
 		private void OnSystemEnabled(GameSystem system)
 		{
 			_game.Events.OnSystemEnabled(system);
 			system.OnEnabled();
+
+			var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+			var type = typeof(GameSystemEnabledEvent<>).MakeGenericType(system.GetType());
+			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
+			_game.Events.Fire(new GameSystemEnabledEvent<GameSystem>(system));
 		}
 		private void OnSystemDisabled(GameSystem system)
 		{
 			_game.Events.OnSystemDisabled(system);
 			system.OnDisabled();
-		}
 
-		private void FireSystemStateChanged(GameSystem system, GameSystemState previousState)
-		{
-			Type type;
-			if (system.State.IsEnabled() && previousState.IsDisabled())
-				type = typeof(GameSystemEnabledEvent<>);
-			else if (system.State.IsDisabled() && previousState.IsEnabled())
-				type = typeof(GameSystemDisabledEvent<>);
-			else type = typeof(GameSystemStateChangedEvent<>);
-
-			_game.Events.Fire(type, system.GetType(), system, previousState);
-		}
-
-		/// <summary>
-		/// Called when a GameSystem caused an error, for example as the system is
-		/// being enabled or disabled or an event fired at it throws an exception.
-		/// </summary>
-		internal Exception OnException(GameSystem system, Exception ex)
-		{
-			if (!system.State.IsErrored()) {
-				var previousState = system.State;
-				system.State = GameSystemState.Errored;
-				FireSystemStateChanged(system, previousState);
-			}
-			// TODO: Do something with exception.
-			Console.Error.WriteLine(ex);
-			// FIXME: Currently throws Exception for easy debugging.
-			throw ex;
+			var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+			var type = typeof(GameSystemDisabledEvent<>).MakeGenericType(system.GetType());
+			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
+			_game.Events.Fire(new GameSystemDisabledEvent<GameSystem>(system));
 		}
 
 		#endregion

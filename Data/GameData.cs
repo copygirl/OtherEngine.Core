@@ -4,47 +4,47 @@ using System.Collections.Generic;
 namespace OtherEngine.Core.Data
 {
 	/// <summary>
-	/// Object which holds a number of items that can be looked up using their type.
+	/// Object which holds a number of components that can be looked up using their type.
 	/// </summary>
-	public class GameData<TItem> : IEnumerable<TItem>
+	public class GameData : IEnumerable<GameComponent>
 	{
-		readonly Dictionary<Type, TItem> _items = new Dictionary<Type, TItem>();
+		readonly Dictionary<Type, GameComponent> _components = new Dictionary<Type, GameComponent>();
 
-		public int Count { get { return _items.Count; } }
+		public int Count { get { return _components.Count; } }
 
 		#region Looking up components
 
 		/// <summary>
-		/// Returns an instance of the given type if it's inside this GameData, null otherwise.
+		/// Returns a component of the given type if it's inside this GameData, null otherwise.
 		/// </summary>
-		public TItem Get(Type type)
+		public GameComponent Get(Type componentType)
 		{
-			if (type == null)
-				throw new ArgumentNullException(type);
-			if (typeof(TItem).IsAssignableFrom(type))
+			if (componentType == null)
+				throw new ArgumentNullException("componentType");
+			if (!typeof(GameComponent).IsAssignableFrom(componentType))
 				throw new ArgumentException(String.Format(
-					"{0} is not an {1}", type, typeof(TItem)), "type");
-			if (type.IsInterface || type.IsAbstract)
+					"{0} is not a GameComponent", componentType), "componentType");
+			if (componentType.IsInterface || componentType.IsAbstract)
 				throw new ArgumentException(String.Format(
-					"{0} is not a concrete type that can be instantiated", type), "type");
+					"{0} is not a concrete type that can be instantiated", componentType), "componentType");
 			
-			TItem item;
-			_items.TryGetValue(type, out item);
-			return item;
+			GameComponent component;
+			_components.TryGetValue(componentType, out component);
+			return component;
 		}
 
 		/// <summary>
-		/// Returns an instance of the given type if it's inside this GameData, null otherwise.
+		/// Returns a component of the given type if it's inside this GameData, null otherwise.
 		/// </summary>
-		public T Get<T>() where T : TItem
+		public T Get<T>() where T : GameComponent
 		{
 			return (T)Get(typeof(T));
 		}
 
 		/// <summary>
-		/// Returns an instance of the given type. If one is not already inside this GameData, it will be created and added.
+		/// Returns a component of the given type. If one is not already inside this GameData, it will be created and added.
 		/// </summary>
-		public T GetOrCreate<T>() where T : TItem, new()
+		public T GetOrCreate<T>() where T : GameComponent, new()
 		{
 			T item = (T)Get(typeof(T));
 			if (item == null)
@@ -57,43 +57,43 @@ namespace OtherEngine.Core.Data
 		#region Adding / removing components
 
 		/// <summary>
-		/// Adds an item to this GameData object.
+		/// Adds a component to this GameData object.
 		/// </summary>
-		/// <exception cref="ArgumentException">Thrown if the GameData object already contains a item of the same type.</exception>
-		public virtual void Add(TItem item)
+		/// <exception cref="ArgumentException">Thrown if the GameData object already contains a component of the same type.</exception>
+		public virtual void Add(GameComponent component)
 		{
-			if (item == null)
-				throw new ArgumentNullException("item");
+			if (component == null)
+				throw new ArgumentNullException("component");
 			
 			try {
-				_items.Add(item.GetType(), item);
+				_components.Add(component.GetType(), component);
 			} catch (ArgumentException ex) {
 				throw new ArgumentException(String.Format(
-					"{0} is already in {1}", item, this), "item");
+					"{0} is already in {1}", component, this), "icomponent");
 			}
 		}
 
 		/// <summary>
-		/// Removes an item from this GameData object.
+		/// Removes a component from this GameData object.
 		/// </summary>
-		/// <exception cref="ArgumentException">Thrown if the GameData object doesn't contain this item.</exception>
-		public virtual void Remove(TItem item)
+		/// <exception cref="ArgumentException">Thrown if the GameData object doesn't contain this component.</exception>
+		public virtual void Remove(GameComponent component)
 		{
-			if (item == null)
-				throw new ArgumentNullException("item");
+			if (component == null)
+				throw new ArgumentNullException("component");
 
-			if (!_items.Remove(item.GetType()))
+			if (!_components.Remove(component.GetType()))
 				throw new ArgumentException(String.Format(
-					"{0} isn't in {1}", item, this), "item");
+					"{0} isn't in {1}", component, this), "component");
 		}
 
 		#endregion
 
 		#region IEnumerable implementation
 
-		public IEnumerator<TItem> GetEnumerator()
+		public IEnumerator<GameComponent> GetEnumerator()
 		{
-			return _items.Values.GetEnumerator();
+			return _components.Values.GetEnumerator();
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

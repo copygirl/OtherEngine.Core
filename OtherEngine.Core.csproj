@@ -34,27 +34,33 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Components\GuidComponent.cs" />
-    <Compile Include="GameEntity.cs" />
-    <Compile Include="GameSystem.cs" />
     <Compile Include="Exceptions\GameSystemException.cs" />
-    <Compile Include="Utility\TypeUtils.cs" />
     <Compile Include="Components\GameSystemContainerComponent.cs" />
-    <Compile Include="CoreSystemHandler.cs">
-      <DependentUpon>Game.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CoreEventHandler.cs">
-      <DependentUpon>Game.cs</DependentUpon>
-    </Compile>
+    <Compile Include="CoreSystemHandler.cs" />
+    <Compile Include="CoreEventHandler.cs" />
     <Compile Include="Data\GameData.cs" />
     <Compile Include="Data\GameComponent.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Exceptions\GameSystemStateException.cs" />
+    <Compile Include="Events\IGameEvent.cs" />
+    <Compile Include="Components\GameSystemSubscriptionComponent.cs" />
+    <Compile Include="Utility\AttributeUtils.cs" />
+    <Compile Include="Attributes\SubscribeEventAttribute.cs" />
+    <Compile Include="Exceptions\AttributeException.cs" />
+    <Compile Include="Events\GameComponentEvents.cs" />
+    <Compile Include="Events\GameSystemEvents.cs" />
+    <Compile Include="Systems\GameSystem.cs" />
+    <Compile Include="Systems\GameSystemState.cs" />
+    <Compile Include="Data\GameEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Components\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Systems\" />
-    <Folder Include="Utility\" />
     <Folder Include="Data\" />
+    <Folder Include="Events\" />
+    <Folder Include="Utility\" />
+    <Folder Include="Attributes\" />
   </ItemGroup>
 </Project>
