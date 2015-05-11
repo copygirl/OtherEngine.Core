@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using OtherEngine.Core.Attributes;
 using OtherEngine.Core.Components;
 using OtherEngine.Core.Events;
-using OtherEngine.Core.Exceptions;
 using OtherEngine.Core.Systems;
 using OtherEngine.Core.Utility;
 
@@ -40,7 +38,7 @@ namespace OtherEngine.Core
 				DoActionOnListeners(entry.Key, (listeners) => listeners.Remove(system));
 		}
 
-		private SubscriptionCollection GetSubscriptions(GameSystem system)
+		SubscriptionCollection GetSubscriptions(GameSystem system)
 		{
 			var container = _game.Systems.GetContainer(system);
 			var component = container.GetOrCreate<GameSystemSubscriptionComponent>();
@@ -49,56 +47,38 @@ namespace OtherEngine.Core
 
 		#region Building event subscription list
 
-		private SubscriptionCollection BuildSubscriptions(GameSystem system)
+		static SubscriptionCollection BuildSubscriptions(GameSystem system)
 		{
 			var subscriptions = new SubscriptionCollection();
-			foreach (var pair in system.GetType().GetMemberAttributes<MethodInfo, SubscribeEventAttribute>()) {
-				var attrName = pair.Attribute.GetType().Name;
-
+			var pairs = system.GetType().GetMemberAttributes<MethodInfo, SubscribeEventAttribute>(
+				BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+			
+			foreach (var pair in pairs) {
 				if (pair.Member.IsStatic)
-					ThrowAttrException(pair, system, "{0}.{1} can't be static");
+					throw pair.MakeException(system.GetType(), "{0}.{1} can't be static");
 				if (pair.Member.IsAbstract)
-					ThrowAttrException(pair, system, "{0}.{1} can't be abstract");
+					throw pair.MakeException(system.GetType(), "{0}.{1} can't be abstract");
 				if (!pair.Member.IsPublic)
-					ThrowAttrException(pair, system, "{0}.{1} needs to be public");
+					throw pair.MakeException(system.GetType(), "{0}.{1} needs to be public");
 				
 				var parameters = pair.Member.GetParameters();
 				Type eventType = null;
 				if ((parameters.Length != 1) || !typeof(IGameEvent).IsAssignableFrom(eventType = parameters[0].ParameterType))
-					ThrowAttrException(pair, system, "{0}.{1} needs exactly one parameter of type IGameEvent");
+					throw pair.MakeException(system.GetType(), "{0}.{1} needs exactly one parameter of type IGameEvent");
 				if ((eventType != typeof(IGameEvent)) && (eventType.IsInterface || eventType.IsAbstract))
-					ThrowAttrException(pair, system, "{0}.{1} parameter is not a concrete type (not interface or abstract) or IGameEvent");
+					throw pair.MakeException(system.GetType(), "{0}.{1} parameter is not a concrete type (not interface or abstract) or IGameEvent");
 
 				EventSubscription sub;
 				if (subscriptions.TryGetValue(eventType, out sub))
-					ThrowAttrException(pair, system, "{0} is subscribing to {2} multiple times ({3} and {1})", eventType.Name, sub.Method.Name);
+					throw pair.MakeException(system.GetType(), "{0} is subscribing to {2} multiple times ({3} and {1})", eventType.Name, sub.Method.Name);
 
-				try {
-					subscriptions.Add(eventType, new EventSubscription(pair.Member, BuildAction(system, pair.Member, eventType)));
-				} catch (Exception ex) {
-					ThrowAttrException(ex, pair, system, "Exception with {0}.{1}: {2}", ex.Message);
-				}
+				Action<IGameEvent> action;
+				try { action = BuildAction(system, pair.Member, eventType); }
+				catch (Exception ex) { throw pair.MakeException(system.GetType(), ex); }
+
+				subscriptions.Add(eventType, new EventSubscription(pair.Member, action));
 			}
 			return subscriptions;
-		}
-
-		static void ThrowAttrException<TMember, TAttr>(
-			Exception innerException,
-			AttributeUtils.MemberAttributePair<TMember, TAttr> pair,
-			GameSystem system, string format, params object[] additionalArgs)
-			where TMember : MemberInfo where TAttr : Attribute
-		{
-			var list = new List<object>(2 + additionalArgs.Length){ system.GetType().FullName, pair.Member.Name };
-			list.AddRange(additionalArgs);
-			throw new AttributeException<TMember>(pair.Attribute, pair.Member, String.Format(
-				"[{0}}: {1}", pair.Attribute.GetFriendlyName(), string.Format(format, list.ToArray())), innerException);
-		}
-		static void ThrowAttrException<TMember, TAttr>(
-			AttributeUtils.MemberAttributePair<TMember, TAttr> pair,
-			GameSystem system, string format, params object[] additionalArgs)
-			where TMember : MemberInfo where TAttr : Attribute
-		{
-			ThrowAttrException(null, pair, system, format, additionalArgs);
 		}
 
 		/// <summary>
