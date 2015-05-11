@@ -11,10 +11,14 @@ namespace OtherEngine.Core
 {
 	/// <summary>
 	/// Handles enabling, disabling and erroring of all <see cref="GameSystem"/>s.
+	/// When enumerated, returns all systems of this <see cref="Game"/> instance
+	/// regardless of their state.
 	/// </summary>
-	public class CoreSystemHandler
+	public class CoreSystemHandler : IEnumerable<GameSystem>
 	{
-		readonly IDictionary<Type, GameData> _systems = new Dictionary<Type, GameData>();
+		readonly IDictionary<Type, GameData> _systemContainers = new Dictionary<Type, GameData>();
+		readonly ICollection<GameSystem> _systems = new HashSet<GameSystem>();
+
 		readonly Game _game;
 
 		internal CoreSystemHandler(Game game)
@@ -32,6 +36,7 @@ namespace OtherEngine.Core
 			if ((container.System == null) && !container.ConstructorThrewException) {
 				try {
 					container.System = new TSystem { Game = _game, State = GameSystemState.Disabled };
+					_systems.Add(container.System);
 				} catch {
 					container.ConstructorThrewException = true;
 					throw;
@@ -74,8 +79,8 @@ namespace OtherEngine.Core
 				throw new ArgumentException(string.Format("{0} is not a GameSystem", type), "type");
 
 			GameData container;
-			if (!_systems.TryGetValue(type, out container))
-				_systems.Add(type, (container = new GameData { new GameSystemContainerComponent(type) }));
+			if (!_systemContainers.TryGetValue(type, out container))
+				_systemContainers.Add(type, (container = new GameData { new GameSystemContainerComponent(type) }));
 			return container;
 		}
 
@@ -121,6 +126,20 @@ namespace OtherEngine.Core
 			var type = typeof(GameSystemDisabledEvent<>).MakeGenericType(system.GetType());
 			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
 			_game.Events.Fire(new GameSystemDisabledEvent<GameSystem>(system));
+		}
+
+		#endregion
+
+		#region IEnumerable implementation
+
+		public IEnumerator<GameSystem> GetEnumerator()
+		{
+			return _systems.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 
 		#endregion
