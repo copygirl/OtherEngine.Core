@@ -12,7 +12,7 @@ namespace OtherEngine.Core.Components
 	public class GameSystemContainerComponent : GameComponent
 	{
 		public Type SystemType { get; private set; }
-		public Systems.GameSystem System { get; internal set; }
+		public GameSystem System { get; internal set; }
 		public bool ConstructorThrewException { get; internal set; }
 
 		internal GameSystemContainerComponent(Type systemType)

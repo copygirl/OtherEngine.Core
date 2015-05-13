@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using OtherEngine.Core.Data;
 
 namespace OtherEngine.Core.Systems
 {
@@ -79,7 +78,7 @@ namespace OtherEngine.Core.Systems
 
 		#region ToString / name related
 
-		private static string GetStateString(GameSystemState state)
+		static string GetStateString(GameSystemState state)
 		{
 			switch (state) {
 				case GameSystemState.Running: return " [Run]";
@@ -89,7 +88,7 @@ namespace OtherEngine.Core.Systems
 				default: return " [???]";
 			}
 		}
-		private static string ToString(string name, string stateString)
+		static string ToString(string name, string stateString)
 		{
 			return string.Format("[System: {0}{1}]", name, stateString);
 		}
@@ -106,7 +105,7 @@ namespace OtherEngine.Core.Systems
 		{
 			if (systemType == null)
 				throw new ArgumentNullException("systemType");
-			if (!systemType.IsSubclassOf(typeof(Systems.GameSystem)))
+			if (!systemType.IsSubclassOf(typeof(GameSystem)))
 				throw new ArgumentException(String.Format(
 					"{0} is not a GameSystem", systemType), "systemType");
 

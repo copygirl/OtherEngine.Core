@@ -67,9 +67,9 @@ namespace OtherEngine.Core.Data
 			
 			try {
 				_components.Add(component.GetType(), component);
-			} catch (ArgumentException ex) {
+			} catch (ArgumentException) {
 				throw new ArgumentException(String.Format(
-					"{0} is already in {1}", component, this), "icomponent");
+					"{0} is already in {1}", component, this), "component");
 			}
 		}
 

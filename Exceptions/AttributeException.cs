@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace OtherEngine.Core.Exceptions
 {
@@ -42,7 +41,7 @@ namespace OtherEngine.Core.Exceptions
 		/// <summary>
 		/// Gets the entity the attribute is associated with.
 		/// </summary>
-		public new TEntity Associated { get { return (TEntity)Associated; } }
+		public new TEntity Associated { get { return (TEntity)base.Associated; } }
 
 		public AttributeException(Attribute attribute, TEntity associated, string message = null, Exception innerException = null)
 			: base(attribute, associated, message, innerException) {  }

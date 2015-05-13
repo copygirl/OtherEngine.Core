@@ -7,8 +7,11 @@ namespace OtherEngine.Core.Data
 	/// Represents a small piece of data or state of a <see cref="GameData"/>
 	/// or <see cref="GameEntity"/>.
 	/// 
-	/// Adding a component to a GameEntity will fire a <see cref="GameComponentAddedEvent"/>.
-	/// Removing a component from a GameEntity will fire a <see cref="GameComponentRemovedEvent"/>.
+	/// Adding a component to a GameEntity will fire a
+	/// <see cref="GameComponentAddedEvent&lt;TComponent&gt;"/>.
+	/// 
+	/// Removing a component from a GameEntity will fire a
+	/// <see cref="GameComponentRemovedEvent&lt;TComponent&gt;"/>.
 	/// </summary>
 	public abstract class GameComponent
 	{

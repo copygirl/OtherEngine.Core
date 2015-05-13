@@ -29,7 +29,7 @@ namespace OtherEngine.Core.Utility
 		/// If multiple attributes are encountered, multiple <see cref="MemberAttributePair&lt;TMember, TAttr&gt;"/>s are returned.
 		/// </summary>
 		public static IEnumerable<MemberAttributePair<TMember, TAttr>> GetMemberAttributes<TMember, TAttr>(
-			this Type type, BindingFlags bindingAttr = BindingFlags.Default)
+			this Type type, BindingFlags bindingAttr = BindingFlags.Instance.Public)
 			where TMember : MemberInfo where TAttr : Attribute
 		{
 			return type.GetMembers(bindingAttr).OfType<TMember>()
@@ -55,7 +55,7 @@ namespace OtherEngine.Core.Utility
 			var list = new List<object>(2 + args.Length){ type.FullName, Member.Name };
 			list.AddRange(args);
 			return new AttributeException<TMember>(Attribute, Member, String.Format(
-				"[{0}}: {1}", Attribute.GetFriendlyName(), string.Format(format, list.ToArray())), innerException);
+				"[{0}]: {1}", Attribute.GetFriendlyName(), string.Format(format, list.ToArray())), innerException);
 		}
 		public AttributeException MakeException(Type type, string format, params object[] args)
 		{

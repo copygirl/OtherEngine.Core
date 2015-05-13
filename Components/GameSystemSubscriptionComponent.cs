@@ -8,10 +8,10 @@ using OtherEngine.Core.Systems;
 namespace OtherEngine.Core.Components
 {
 	/// <summary>
-	/// Component of a <see cref="GameSystem"/> container which
-	/// contains the <see cref="IGameEvent"/>s the GameSystem is listening to.
+	/// Component of a <see cref="GameSystem"/> container which contains
+	/// the <see cref="IGameEvent"/>s the GameSystem is listening to.
 	/// </summary>
-	internal class GameSystemSubscriptionComponent : GameComponent
+	class GameSystemSubscriptionComponent : GameComponent
 	{
 		public SubscriptionCollection Subscriptions { get; set; }
 	}
@@ -20,12 +20,12 @@ namespace OtherEngine.Core.Components
 	/// Represents the list of <see cref="IGameEvent"/>s a
 	/// <see cref="GameSystem"/> is listening to.
 	/// </summary>
-	internal class SubscriptionCollection : Dictionary<Type, EventSubscription> {  }
+	class SubscriptionCollection : Dictionary<Type, EventSubscription> {  }
 
 	/// <summary>
 	/// Represents a single <see cref="IGameEvent"/> a <see cref="GameSystem"/> is listening to.
 	/// </summary>
-	internal class EventSubscription
+	class EventSubscription
 	{
 		readonly Action<IGameEvent> _action;
 		public MethodInfo Method { get; private set; }

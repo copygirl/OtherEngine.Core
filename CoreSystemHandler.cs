@@ -96,18 +96,17 @@ namespace OtherEngine.Core
 		{
 			SetState(system, GameSystemState.Disabled, OnSystemDisabled);
 		}
-		private void SetState(GameSystem system, GameSystemState state, Action<GameSystem> action = null)
+		void SetState(GameSystem system, GameSystemState state, Action<GameSystem> action = null)
 		{
 			if (system.State == state)
 				throw new GameSystemStateException(system, String.Format(
 					"{0} is already {1}.", system, state.ToString().ToLowerInvariant()));
 
-			var previousState = system.State;
 			system.State = state;
 			action(system);
 		}
 
-		private void OnSystemEnabled(GameSystem system)
+		void OnSystemEnabled(GameSystem system)
 		{
 			_game.Events.OnSystemEnabled(system);
 			system.OnEnabled();
@@ -117,7 +116,7 @@ namespace OtherEngine.Core
 			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
 			_game.Events.Fire(new GameSystemEnabledEvent<GameSystem>(system));
 		}
-		private void OnSystemDisabled(GameSystem system)
+		void OnSystemDisabled(GameSystem system)
 		{
 			_game.Events.OnSystemDisabled(system);
 			system.OnDisabled();

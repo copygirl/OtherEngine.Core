@@ -12,7 +12,7 @@ namespace OtherEngine.Core.Exceptions
 		public Type SystemType { get; private set; }
 		public GameSystem System { get; private set; } // May be null.
 
-		private GameSystemException(Type type, GameSystem system, string message, Exception innerException)
+		GameSystemException(Type type, GameSystem system, string message, Exception innerException)
 			: base(message, innerException)
 		{
 			SystemType = type;
@@ -29,7 +29,7 @@ namespace OtherEngine.Core.Exceptions
 		static T ThrowIfNull<T>(T value, string paramName)
 		{
 			if (value == null)
-				throw new ArgumentNullException("paramName");
+				throw new ArgumentNullException(paramName);
 			return value;
 		}
 	}

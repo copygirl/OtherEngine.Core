@@ -30,12 +30,12 @@ namespace OtherEngine.Core
 		internal void OnSystemEnabled(GameSystem system)
 		{
 			foreach (var entry in GetSubscriptions(system))
-				DoActionOnListeners(entry.Key, (listeners) => listeners.Add(system, entry.Value));
+				DoActionOnListeners(entry.Key, listeners => listeners.Add(system, entry.Value));
 		}
 		internal void OnSystemDisabled(GameSystem system)
 		{
 			foreach (var entry in GetSubscriptions(system))
-				DoActionOnListeners(entry.Key, (listeners) => listeners.Remove(system));
+				DoActionOnListeners(entry.Key, listeners => listeners.Remove(system));
 		}
 
 		SubscriptionCollection GetSubscriptions(GameSystem system)
@@ -127,7 +127,7 @@ namespace OtherEngine.Core
 			Fire(gameEvent.GetType(), gameEvent);
 			Fire(typeof(IGameEvent), gameEvent);
 		}
-		private void Fire(Type eventType, IGameEvent gameEvent)
+		void Fire(Type eventType, IGameEvent gameEvent)
 		{
 			EventCollection listeners;
 			if (!_events.TryGetValue(eventType, out listeners)) return;
