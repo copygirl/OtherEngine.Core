@@ -52,6 +52,9 @@
     <Compile Include="Systems\GameSystem.cs" />
     <Compile Include="Systems\GameSystemState.cs" />
     <Compile Include="Data\GameEntity.cs" />
+    <Compile Include="Systems\ComponentTrackerSystem.cs" />
+    <Compile Include="Attributes\TrackComponentAttribute.cs" />
+    <Compile Include="Components\GameSystemTrackingComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
