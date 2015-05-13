@@ -29,7 +29,7 @@ namespace OtherEngine.Core.Utility
 		/// If multiple attributes are encountered, multiple <see cref="MemberAttributePair&lt;TMember, TAttr&gt;"/>s are returned.
 		/// </summary>
 		public static IEnumerable<MemberAttributePair<TMember, TAttr>> GetMemberAttributes<TMember, TAttr>(
-			this Type type, BindingFlags bindingAttr = BindingFlags.Instance.Public)
+			this Type type, BindingFlags bindingAttr = BindingFlags.Instance | BindingFlags.Public)
 			where TMember : MemberInfo where TAttr : Attribute
 		{
 			return type.GetMembers(bindingAttr).OfType<TMember>()

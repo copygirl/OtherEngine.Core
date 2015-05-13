@@ -52,7 +52,6 @@
     <Compile Include="Systems\GameSystem.cs" />
     <Compile Include="Systems\GameSystemState.cs" />
     <Compile Include="Data\GameEntity.cs" />
-    <Compile Include="Utility\BindingFlagsExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -111,7 +111,7 @@ namespace OtherEngine.Core
 			_game.Events.OnSystemEnabled(system);
 			system.OnEnabled();
 
-			var flags = BindingFlags.Instance.Public.NonPublic;
+			var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 			var type = typeof(GameSystemEnabledEvent<>).MakeGenericType(system.GetType());
 			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
 			_game.Events.Fire(new GameSystemEnabledEvent<GameSystem>(system));
@@ -121,7 +121,7 @@ namespace OtherEngine.Core
 			_game.Events.OnSystemDisabled(system);
 			system.OnDisabled();
 
-			var flags = BindingFlags.Instance.Public.NonPublic;
+			var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 			var type = typeof(GameSystemDisabledEvent<>).MakeGenericType(system.GetType());
 			_game.Events.Fire((IGameEvent)Activator.CreateInstance(type, flags, null, new object[]{ system }, null));
 			_game.Events.Fire(new GameSystemDisabledEvent<GameSystem>(system));

@@ -51,7 +51,7 @@ namespace OtherEngine.Core
 		{
 			var subscriptions = new SubscriptionCollection();
 			var pairs = system.GetType().GetMemberAttributes<MethodInfo, SubscribeEventAttribute>(
-				BindingFlags.Instance.Public.NonPublic.DeclaredOnly);
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 			
 			foreach (var pair in pairs) {
 				if (pair.Member.IsStatic)
