@@ -55,6 +55,7 @@
     <Compile Include="Systems\ComponentTrackerSystem.cs" />
     <Compile Include="Attributes\TrackComponentAttribute.cs" />
     <Compile Include="Components\GameSystemTrackingComponent.cs" />
+    <Compile Include="Exceptions\ExpectedComponentException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
