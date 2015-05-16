@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OtherEngine.Core.Exceptions;
 
 namespace OtherEngine.Core.Data
 {
@@ -49,6 +50,17 @@ namespace OtherEngine.Core.Data
 			T item = (T)Get(typeof(T));
 			if (item == null)
 				Add(item = new T());
+			return item;
+		}
+
+		/// <summary>
+		/// Returns a component of the given type. Throws a <see cref="ExpectedComponentException"/> if it wasn't found.
+		/// </summary>
+		public T GetOrThrow<T>() where T : GameComponent
+		{
+			T item = (T)Get(typeof(T));
+			if (item == null)
+				throw new ExpectedComponentException<T>(this);
 			return item;
 		}
 

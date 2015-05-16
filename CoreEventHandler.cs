@@ -58,6 +58,7 @@ namespace OtherEngine.Core
 					throw pair.MakeException(system.GetType(), "{0}.{1} can't be static");
 				if (pair.Member.IsAbstract)
 					throw pair.MakeException(system.GetType(), "{0}.{1} can't be abstract");
+				// TODO: Should the method be required to be public?
 				if (!pair.Member.IsPublic)
 					throw pair.MakeException(system.GetType(), "{0}.{1} needs to be public");
 				
