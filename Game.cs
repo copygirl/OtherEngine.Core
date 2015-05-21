@@ -8,11 +8,13 @@ namespace OtherEngine.Core
 	public class Game
 	{
 		public CoreSystemHandler Systems { get; private set; }
+		public CoreModuleHandler Modules { get; private set; }
 		public CoreEventHandler Events { get; private set; }
 
 		public Game()
 		{
 			Systems = new CoreSystemHandler(this);
+			Modules = new CoreModuleHandler(this);
 			Events = new CoreEventHandler(this);
 		}
 

@@ -16,6 +16,7 @@ namespace OtherEngine.Core.Systems
 	/// enumerable into those GameSystems.
 	/// </summary>
 	/// <seealso cref="TrackComponentAttribute"/>
+	[AutoEnable]
 	public class ComponentTrackerSystem : GameSystem
 	{
 		readonly TrackingDictionary _trackedComponents = new TrackingDictionary();

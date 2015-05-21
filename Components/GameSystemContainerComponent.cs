@@ -13,7 +13,9 @@ namespace OtherEngine.Core.Components
 	{
 		public Type SystemType { get; private set; }
 		public GameSystem System { get; internal set; }
+
 		public bool ConstructorThrewException { get; internal set; }
+		public bool AutoEnable { get; internal set; }
 
 		internal GameSystemContainerComponent(Type systemType)
 		{

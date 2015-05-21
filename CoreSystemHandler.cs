@@ -32,7 +32,7 @@ namespace OtherEngine.Core
 		/// </summary>
 		public TSystem Get<TSystem>() where TSystem : GameSystem, new()
 		{
-			var container = GetContainer<TSystem>().Get<GameSystemContainerComponent>();
+			var container = GetContainer<TSystem>().GetOrThrow<GameSystemContainerComponent>();
 			if ((container.System == null) && !container.ConstructorThrewException) {
 				try {
 					container.System = new TSystem { Game = _game, State = GameSystemState.Disabled };
