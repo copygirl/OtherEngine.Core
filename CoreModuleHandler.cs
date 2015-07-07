@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Linq;
-using OtherEngine.Core.Data;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using OtherEngine.Core.Systems;
-using OtherEngine.Core.Events;
-using OtherEngine.Core.Components;
 using OtherEngine.Core.Attributes;
+using OtherEngine.Core.Components;
+using OtherEngine.Core.Data;
+using OtherEngine.Core.Events;
+using OtherEngine.Core.Systems;
 
 namespace OtherEngine.Core
 {
 	/// <summary>
 	/// Handles modules, which are any assemblies that contain <see cref="GameComponent"/>,
 	/// <see cref="GameSystem"/> and/or <see cref="IGameEvent"/> types. When enumerated,
-	/// returns all <see cref="GameData"/> objects which will contain data related to
-	/// these modules.
+	/// returns <see cref="GameData"/> objects which will contain data related to these
+	/// modules.
 	/// </summary>
 	public class CoreModuleHandler : IEnumerable<GameData>
 	{
@@ -35,7 +35,7 @@ namespace OtherEngine.Core
 		{
 			var container = GetContainer(assembly);
 			if (container == null)
-				throw new ArgumentException("{0} is not a module");
+				throw new ArgumentException(string.Format("{0} is not a module", assembly));
 			var component = container.GetOrThrow<GameModuleContainerComponent>();
 			if (component.Loaded) return;
 
@@ -84,7 +84,7 @@ namespace OtherEngine.Core
 				return null;
 
 			var container = new GameModuleContainerComponent(assembly,
-				components.Select(x => x), systems.Select(x => x), events.Select(x => x));
+				components.AsReadOnly(), systems.AsReadOnly(), events.AsReadOnly());
 			return new GameData { container };
 		}
 		static void BuildHelper<TType>(Type type, ICollection<Type> list, Action<Type> action = null)

@@ -5,7 +5,7 @@ namespace OtherEngine.Core.Exceptions
 {
 	/// <summary>
 	/// Helper exception, ideally thrown when another system is required
-	/// to be in a specific state before some action can be executed.
+	/// to be in a specific state for some action to be executed.
 	/// </summary>
 	public class GameSystemStateException : Exception
 	{

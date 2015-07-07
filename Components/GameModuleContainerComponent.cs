@@ -13,15 +13,15 @@ namespace OtherEngine.Core.Components
 	{
 		public Assembly Assembly { get; private set; }
 
-		public IEnumerable<Type> ComponentTypes { get; private set; }
-		public IEnumerable<Type> SystemTypes { get; private set; }
-		public IEnumerable<Type> EventTypes { get; private set; }
+		public IReadOnlyCollection<Type> ComponentTypes { get; private set; }
+		public IReadOnlyCollection<Type> SystemTypes { get; private set; }
+		public IReadOnlyCollection<Type> EventTypes { get; private set; }
 
 		public bool Loaded { get; internal set; }
 
 		internal GameModuleContainerComponent(
-			Assembly assembly, IEnumerable<Type> componentTypes,
-			IEnumerable<Type> systemTypes, IEnumerable<Type> eventTypes)
+			Assembly assembly, IReadOnlyCollection<Type> componentTypes,
+			IReadOnlyCollection<Type> systemTypes, IReadOnlyCollection<Type> eventTypes)
 		{
 			Assembly = assembly;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using OtherEngine.Core.Attributes;
 using OtherEngine.Core.Components;
@@ -12,8 +11,8 @@ namespace OtherEngine.Core.Systems
 {
 	/// <summary>
 	/// Keeps track of <see cref="GameEntity"/>s with <see cref="GameComponent"/>s
-	/// of certain types for other <see cref="GameSystem"/>s, by inserting an
-	/// enumerable into those GameSystems.
+	/// of certain types for other <see cref="GameSystem"/>s, by inserting a
+	/// readonly collection into those GameSystems.
 	/// </summary>
 	/// <seealso cref="TrackComponentAttribute"/>
 	[AutoEnable]
@@ -66,8 +65,8 @@ namespace OtherEngine.Core.Systems
 		/// <summary>
 		/// Called when this or any other <see cref="GameSystem"/> is enabled.
 		/// Gets all properties with the <see cref="TrackComponentAttribute"/> and sets
-		/// them to an enumerable of all tracked <see cref="GameEntity"/>s with the
-		/// requested <see cref="GameComponent"/> type.
+		/// them to a readonly collection of all tracked <see cref="GameEntity"/>s with
+		/// the requested <see cref="GameComponent"/> type.
 		/// </summary>
 		void OnSystemEnabled(GameSystem system)
 		{
@@ -98,9 +97,9 @@ namespace OtherEngine.Core.Systems
 			return (component.Tracking ?? (component.Tracking = BuildTracking(system)));
 		}
 		/// <summary>
-		/// Builds a collection of properties with a <see cref="TrackComponentAttribute"/>
-		/// of the <see cref="GameSystem"/> class and the type of <see cref="GameComponent"/>
-		/// it's requesting.
+		/// Builds a collection of properties from the <see cref="GameSystem"/>
+		/// with a <see cref="TrackComponentAttribute"/> class and the type of
+		/// <see cref="GameComponent"/> it's requesting.
 		/// </summary>
 		static TrackingCollection BuildTracking(GameSystem system)
 		{
@@ -111,8 +110,8 @@ namespace OtherEngine.Core.Systems
 			foreach (var pair in pairs) {
 				var type = pair.Attribute.ComponentType;
 
-				if (pair.Member.PropertyType != typeof(IEnumerable<GameEntity>))
-					throw pair.MakeException(system.GetType(), "{0}.{1} needs to be type IEnumerable<GameEntity>");
+				if (pair.Member.PropertyType != typeof(IReadOnlyCollection<GameEntity>))
+					throw pair.MakeException(system.GetType(), "{0}.{1} needs to be type IReadOnlyCollection<GameEntity>");
 				if (!pair.Member.CanWrite)
 					throw pair.MakeException(system.GetType(), "{0}.{1} doesn't have a set accessor");
 
@@ -153,11 +152,11 @@ namespace OtherEngine.Core.Systems
 		/// of a <see cref="TrackedComponentContainer"/>, creating the container
 		/// if necessary.
 		/// </summary>
-		IEnumerable<GameEntity> ContainerAddSystem(Type componentType, GameSystem system)
+		IReadOnlyCollection<GameEntity> ContainerAddSystem(Type componentType, GameSystem system)
 		{
 			var container = GetOrCreateContainer(componentType);
 			container.Systems.Add(system);
-			return container.EntityEnumerable;
+			return container.EntityCollectionReadonly;
 		}
 
 		/// <summary>
@@ -179,13 +178,13 @@ namespace OtherEngine.Core.Systems
 		{
 			public ICollection<GameSystem> Systems { get; private set; }
 			public ICollection<GameEntity> EntityCollection { get; private set; }
-			public IEnumerable<GameEntity> EntityEnumerable { get; private set; }
+			public IReadOnlyCollection<GameEntity> EntityCollectionReadonly { get; private set; }
 
 			public TrackedComponentContainer()
 			{
 				Systems = new HashSet<GameSystem>();
 				EntityCollection = new HashSet<GameEntity>();
-				EntityEnumerable = EntityCollection.Select(x => x);
+				EntityCollectionReadonly = new ReadOnlyCollectionWrapper<GameEntity>(EntityCollection);
 			}
 		}
 

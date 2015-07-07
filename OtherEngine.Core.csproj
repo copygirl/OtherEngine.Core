@@ -59,6 +59,7 @@
     <Compile Include="Attributes\AutoEnableAttribute.cs" />
     <Compile Include="CoreModuleHandler.cs" />
     <Compile Include="Components\GameModuleContainerComponent.cs" />
+    <Compile Include="Utility\ReadOnlyCollectionWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

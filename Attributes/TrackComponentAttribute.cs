@@ -7,14 +7,13 @@ namespace OtherEngine.Core.Attributes
 	/// <summary>
 	/// Controlled by <see cref="ComponentTrackerSystem"/>.
 	/// 
-	/// A <see cref="GameSystem"/> property with this attribute will be set
-	/// to a enumerable of <see cref="GameEntity"/>s when the GameSystem is
-	/// enabled. If either system is disabled, the property will be reset
-	/// to null;
+	/// A <see cref="GameSystem"/> property with this attribute will be set to a
+	/// readonly collection of <see cref="GameEntity"/>s when the GameSystem is
+	/// enabled. If either system is disabled, the property will be reset to null.
 	/// </summary>
 	/// <example>
-	/// 	[TrackComponent(typeof(SomeComponent))]
-	/// 	private IEnumerable<GameEntity> SomeEntities { get; set; }
+	/// 	[TrackComponent(typeof(ExampleComponent))]
+	/// 	private IReadOnlyCollection<GameEntity> ExampleEntities { get; set; }
 	/// </example>
 	[AttributeUsage(AttributeTargets.Property)]
 	public class TrackComponentAttribute : Attribute

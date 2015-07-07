@@ -15,7 +15,7 @@ namespace OtherEngine.Core.Attributes
 	/// </summary>
 	/// <example>
 	/// 	[SubscribeEvent]
-	/// 	public void OnCommandUsed(CommandUsedEvent ev) { ... }
+	/// 	public void OnExample(ExampleEvent ev) { ... }
 	/// </example>
 	[AttributeUsage(AttributeTargets.Method)]
 	public class SubscribeEventAttribute : Attribute

@@ -38,7 +38,7 @@ namespace OtherEngine.Core
 				DoActionOnListeners(entry.Key, listeners => listeners.Remove(system));
 		}
 
-		SubscriptionCollection GetSubscriptions(GameSystem system)
+		EventSubscriptionCollection GetSubscriptions(GameSystem system)
 		{
 			var container = _game.Systems.GetContainer(system);
 			var component = container.GetOrCreate<GameSystemSubscriptionComponent>();
@@ -47,9 +47,9 @@ namespace OtherEngine.Core
 
 		#region Building event subscription list
 
-		static SubscriptionCollection BuildSubscriptions(GameSystem system)
+		static EventSubscriptionCollection BuildSubscriptions(GameSystem system)
 		{
-			var subscriptions = new SubscriptionCollection();
+			var subscriptions = new EventSubscriptionCollection();
 			var pairs = system.GetType().GetMemberAttributes<MethodInfo, SubscribeEventAttribute>(
 				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 			

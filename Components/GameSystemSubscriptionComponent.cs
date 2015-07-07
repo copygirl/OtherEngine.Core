@@ -13,14 +13,14 @@ namespace OtherEngine.Core.Components
 	/// </summary>
 	class GameSystemSubscriptionComponent : GameComponent
 	{
-		public SubscriptionCollection Subscriptions { get; set; }
+		public EventSubscriptionCollection Subscriptions { get; set; }
 	}
 
 	/// <summary>
 	/// Represents the list of <see cref="IGameEvent"/>s a
 	/// <see cref="GameSystem"/> is listening to.
 	/// </summary>
-	class SubscriptionCollection : Dictionary<Type, EventSubscription> {  }
+	class EventSubscriptionCollection : Dictionary<Type, EventSubscription> {  }
 
 	/// <summary>
 	/// Represents a single <see cref="IGameEvent"/> a <see cref="GameSystem"/> is listening to.
