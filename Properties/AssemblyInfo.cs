@@ -4,7 +4,7 @@
 [assembly: AssemblyTitle("OtherEngine.Core")]
 [assembly: AssemblyCopyright("copygirl")]
 
-[assembly: AssemblyVersion("0.0")]
+[assembly: AssemblyVersion("2.0")]
 
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]

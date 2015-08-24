@@ -1,28 +1,37 @@
 ﻿using System;
-using OtherEngine.Core.Data;
-using OtherEngine.Core.Systems;
+using System.Reflection;
+using System.Collections.Generic;
+using OtherEngine.Core.Utility;
 
 namespace OtherEngine.Core.Attributes
 {
 	/// <summary>
-	/// Controlled by <see cref="ComponentTrackerSystem"/>.
+	/// A controller property with this attribute will be set to a
+	/// readonly collection of entities with the specified component type.
 	/// 
-	/// A <see cref="GameSystem"/> property with this attribute will be set to a
-	/// readonly collection of <see cref="GameEntity"/>s when the GameSystem is
-	/// enabled. If either system is disabled, the property will be reset to null.
+	/// When controllers are loaded late, entities that had this type
+	/// of component added before may not be included in the collection.
 	/// </summary>
 	/// <example>
 	/// 	[TrackComponent(typeof(ExampleComponent))]
-	/// 	private IReadOnlyCollection<GameEntity> ExampleEntities { get; set; }
+	/// 	IReadOnlyCollection<Entity> ExampleEntities { get; set; }
 	/// </example>
 	[AttributeUsage(AttributeTargets.Property)]
-	public class TrackComponentAttribute : Attribute
+	public class TrackComponentAttribute : ValidatedAttribute
 	{
 		public Type ComponentType { get; private set; }
 
 		public TrackComponentAttribute(Type componentType)
 		{
 			ComponentType = componentType;
+		}
+
+		public override void Validate(ICustomAttributeProvider target)
+		{
+			var property = (PropertyInfo)target;
+			if (!property.PropertyType.Is(typeof(IReadOnlyCollection<>)))
+				throw new AttributeUsageException(this, target, string.Format(
+					"{0} is not an IReadOnlyCollection<>", target.GetName()));
 		}
 	}
 }

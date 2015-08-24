@@ -2,33 +2,67 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using OtherEngine.Core.Exceptions;
+using System.Text;
 
 namespace OtherEngine.Core.Utility
 {
 	public static class AttributeUtils
 	{
-		static readonly Regex _matchTrailingAttribute = new Regex("Attribute$");
+		#region GetAttributes and GetAttribute
 
-		public static string GetFriendlyName(Type attributeType)
+		/// <summary>
+		/// Returns all the attribute provider's attributes of type TAttr.
+		/// If inherit is true, checks inherited attributes.
+		/// </summary>
+		public static IEnumerable<TAttr> GetAttributes<TAttr>(
+			this ICustomAttributeProvider info, bool inherit = false)
+			where TAttr : Attribute
 		{
-			if (attributeType == null)
-				throw new ArgumentNullException("attributeType");
-			return _matchTrailingAttribute.Replace(attributeType.Name, "");
+			return info.GetCustomAttributes(typeof(TAttr), inherit).Select(a => (TAttr)a);
 		}
-		public static string GetFriendlyName(this Attribute attribute)
+		/// <summary>
+		/// Returns all the type's attributes of type TAttr,
+		/// If inherit is true, checks inherited attributes.
+		/// </summary>
+		public static IEnumerable<TAttr> GetAttributes<TType, TAttr>(
+			bool inherit = false)
+			where TAttr : Attribute
 		{
-			if (attribute == null)
-				throw new ArgumentNullException("attribute");
-			return GetFriendlyName(attribute.GetType());
+			return typeof(TType).GetAttributes<TAttr>(inherit);
 		}
 
 		/// <summary>
-		/// Enumerates all members of to get every member of type TMember which has one or multiple attributes of type TAttr.
-		/// If multiple attributes are encountered, multiple <see cref="MemberAttributePair&lt;TMember, TAttr&gt;"/>s are returned.
+		/// Returns the attribute provider's attribute of type TAttr,
+		/// null if none. Only the first matching attribute is returned.
+		/// If inherit is true, checks inherited attributes.
 		/// </summary>
-		public static IEnumerable<MemberAttributePair<TMember, TAttr>> GetMemberAttributes<TMember, TAttr>(
+		public static TAttr GetAttribute<TAttr>(
+			this ICustomAttributeProvider info, bool inherit = false)
+			where TAttr : Attribute
+		{
+			return info.GetAttributes<TAttr>(inherit).FirstOrDefault();
+		}
+		/// <summary>
+		/// Returns the type's attribute of type TAttr, null if
+		/// none. Only the first matching attribute is returned.
+		/// If inherit is true, checks inherited attributes.
+		/// </summary>
+		public static TAttr GetAttribute<TType, TAttr>(
+			bool inherit = false)
+			where TAttr : Attribute
+		{
+			return typeof(TType).GetAttribute<TAttr>(inherit);
+		}
+
+		#endregion
+
+		#region GetMemberAttributes and MemberAttributePair
+
+		/// <summary>
+		/// Enumerates all members of the current type to get members of type
+		/// TMember which have one or multiple attributes of type TAttr.
+		/// </summary>
+		public static IEnumerable<MemberAttributePair<TMember, TAttr>> GetMembersWithAttribute<TMember, TAttr>(
 			this Type type, BindingFlags bindingAttr = BindingFlags.Instance | BindingFlags.Public)
 			where TMember : MemberInfo where TAttr : Attribute
 		{
@@ -36,8 +70,54 @@ namespace OtherEngine.Core.Utility
 				.SelectMany(m => m.GetCustomAttributes<TAttr>()
 					.Select(a => new MemberAttributePair<TMember, TAttr>(m, a)));
 		}
+
+		#endregion
+
+		#region ICustomAttributeProvider.GetName
+
+		/// <summary>
+		/// Gets the name of an attribute target. For example:
+		///   [Assembly: OtherEngine.Core],
+		///   [Type: TestController],
+		///   [Method: TestController.OnEvent],
+		///   [Property: TestController.Entities],
+		///   [Parameter: TestController.DoSomething input],
+		///   [Return: TestController.DoSomething]
+		/// </summary>
+		public static string GetName(this ICustomAttributeProvider target)
+		{
+			var sb = new StringBuilder("[");
+			if (target is Assembly)
+				sb.Append("Assembly: ").Append(((Assembly)target).GetName().Name);
+			else if (target is Module)
+				sb.Append("Module: ").Append(((Module)target).Name);
+			else if (target is Type)
+				sb.Append("Type: ").Append(((Type)target).Name);
+			else if (target is MemberInfo) {
+				var info = (MemberInfo)target;
+				switch (info.MemberType) {
+					case MemberTypes.Constructor: sb.Append("Constructor: "); break;
+					case MemberTypes.Method: sb.Append("Method: "); break;
+					case MemberTypes.Field: sb.Append("Field: "); break;
+					case MemberTypes.Property: sb.Append("Property: "); break;
+					case MemberTypes.Event: sb.Append("Event: "); break;
+				}
+				sb.Append(info.ReflectedType.Name).Append('.').Append(info.Name);
+			} else if (target is ParameterInfo) {
+				var info = (ParameterInfo)target;
+				sb.Append((info.Position >= 0) ? "Parameter: " : "Return: ");
+				sb.Append(info.Member.ReflectedType.Name).Append(".").Append(info.Member.Name);
+				if (info.Position >= 0) sb.Append(' ').Append(info.Name);
+			} else sb.Append("Unknown Attribute Target");
+			return sb.Append(']').ToString();
+		}
+
+		#endregion
 	}
 
+	/// <summary>
+	/// Helper class which represents a MemberInfo / Attribute pair.
+	/// </summary>
 	public class MemberAttributePair<TMember, TAttr>
 		where TMember : MemberInfo where TAttr : Attribute
 	{
@@ -48,22 +128,6 @@ namespace OtherEngine.Core.Utility
 		{
 			Member = member;
 			Attribute = attribute;
-		}
-
-		public AttributeException MakeException(Type type, Exception innerException, string format, params object[] args)
-		{
-			var list = new List<object>(2 + args.Length){ type.FullName, Member.Name };
-			list.AddRange(args);
-			return new AttributeException<TMember>(Attribute, Member, String.Format(
-				"[{0}]: {1}", Attribute.GetFriendlyName(), string.Format(format, list.ToArray())), innerException);
-		}
-		public AttributeException MakeException(Type type, string format, params object[] args)
-		{
-			return MakeException(type, null, format, args);
-		}
-		public AttributeException MakeException(Type type, Exception innerException)
-		{
-			return MakeException(type, innerException, "Exception with {0}.{1}: {2}", innerException.Message);
 		}
 	}
 }
