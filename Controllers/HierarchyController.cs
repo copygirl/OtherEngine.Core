@@ -17,7 +17,7 @@ namespace OtherEngine.Core.Controllers
 			var childHier = child.GetOrCreate<HierarchyComponent>();
 			if (childHier.Parent != null)
 				throw new InvalidOperationException(string.Format(
-					"{0} is already {1}'s child entity", child, parent));
+					"{0} is already the child entity of {1}", child, childHier.Parent));
 
 			var parentHier = parent.GetOrCreate<HierarchyComponent>();
 
