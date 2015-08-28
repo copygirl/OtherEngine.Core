@@ -5,8 +5,16 @@ using OtherEngine.Core.Components;
 
 namespace OtherEngine.Core.Controllers
 {
+	/// <summary>
+	/// Handles entity hierarchy using the HierarchyComponent.
+	/// </summary>
 	public class HierarchyController : Controller
 	{
+		/// <summary>
+		/// Adds a child entity to a parent entity.
+		/// This creates HierarchyComponents if necessary.
+		/// Throws an exception if the child entity already has a parent.
+		/// </summary>
 		public void Add(Entity parent, Entity child)
 		{
 			if (parent == null)
@@ -25,6 +33,9 @@ namespace OtherEngine.Core.Controllers
 			childHier.Parent = parent;
 		}
 
+		/// <summary>
+		/// Removes the child entity from its parent.
+		/// </summary>
 		public void Remove(Entity child)
 		{
 			if (child == null)
