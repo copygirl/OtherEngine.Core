@@ -55,6 +55,11 @@ namespace OtherEngine.Core
 			return component;
 		}
 
+		public bool Has<TComponent>() where TComponent : Component
+		{
+			return (Get<TComponent>() != null);
+		}
+
 		#endregion
 
 		#region Adding / removing components
