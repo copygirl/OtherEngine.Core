@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OtherEngine.Core.Attributes;
 using OtherEngine.Core.Components;
 
 namespace OtherEngine.Core.Controllers
@@ -8,6 +9,7 @@ namespace OtherEngine.Core.Controllers
 	/// <summary>
 	/// Handles entity hierarchy using the HierarchyComponent.
 	/// </summary>
+	[AutoEnable]
 	public class HierarchyController : Controller
 	{
 		/// <summary>
