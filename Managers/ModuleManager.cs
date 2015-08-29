@@ -43,26 +43,30 @@ namespace OtherEngine.Core.Managers
 				throw new ArgumentException(string.Format(
 					"{0} doesn't contain component, controller or event types", assembly), "assembly");
 
+
 			Game.Events.DelayEvents();
 
-			Game.Components.OnModuleLoad(componentTypes);
-			Game.Controllers.OnModuleLoad(controllerTypes);
-			Game.Events.OnModuleLoad(eventTypes);
+			var componentContainers = Game.Components.OnModuleLoad(componentTypes);
+			var controllerContainers = Game.Controllers.OnModuleLoad(controllerTypes);
+			var eventContainers = Game.Events.OnModuleLoad(eventTypes);
 
 			Game.Events.FireDelayedEvents();
 
+
 			var moduleContainer = CreateContainer(assembly);
-			moduleContainer.AddGroup("Components", Game.Components.Containers);
-			moduleContainer.AddGroup("Controllers", Game.Controllers.Containers);
-			moduleContainer.AddGroup("Events", Game.Events.Containers);
+			moduleContainer.AddGroup("Components", componentContainers);
+			moduleContainer.AddGroup("Controllers", controllerContainers);
+			moduleContainer.AddGroup("Events", eventContainers);
 
 			Game.Components.OnModuleLoaded(moduleContainer);
 			Game.Controllers.OnModuleLoaded(moduleContainer);
 			Game.Events.OnModuleLoaded(moduleContainer);
 
+
 			var label = "Modules";
 			var group = Game.Hierarchy.GetChild(label) ?? Game.Hierarchy.AddGroup(label);
 			group.Add(moduleContainer);
+
 
 			// Enable all controllers with the AutoEnable attribute.
 			foreach (var controllerType in controllerTypes)
