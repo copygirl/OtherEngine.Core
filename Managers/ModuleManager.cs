@@ -14,6 +14,9 @@ namespace OtherEngine.Core.Managers
 	/// </summary>
 	public class ModuleManager : ContainerManager<Assembly>
 	{
+		protected override string ContainerType { get { return "Module"; } }
+
+
 		internal ModuleManager(Game game) : base(game) {  }
 
 

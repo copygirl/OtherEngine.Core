@@ -13,7 +13,7 @@ namespace OtherEngine.Core.Managers
 
 		protected Game Game { get; private set; }
 
-		protected virtual string ContainerType { get { return typeof(TKey).Name; } }
+		protected abstract string ContainerType { get; }
 
 
 		/// <summary>
