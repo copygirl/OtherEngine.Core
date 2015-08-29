@@ -109,17 +109,28 @@ namespace OtherEngine.Core.Controllers
 		/// <summary>
 		/// Adds child entities to the parent entity.
 		/// </summary>
+		public static void Add(this Entity parent, IEnumerable<Entity> children)
+		{
+			if (children == null)
+				throw new ArgumentNullException("children");
+
+			foreach (var child in children) {
+				if (child == null)
+					throw new ArgumentException("children contains null elements", "children");
+				parent.Add(child);
+			}
+		}
+		/// <summary>
+		/// Adds child entities to the parent entity.
+		/// </summary>
 		public static void Add(this Entity parent, params Entity[] children)
 		{
 			if (children == null)
 				throw new ArgumentNullException("children");
 			if (children.Length <= 0)
 				throw new ArgumentException("children doesn't contain any elements", "children");
-			if (children.Contains(null))
-				throw new ArgumentException("children contains null elements", "children");
 			
-			foreach (var child in children)
-				parent.Add(child);
+			parent.Add(children.AsEnumerable());
 		}
 
 		/// <summary>
