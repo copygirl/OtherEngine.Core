@@ -45,6 +45,7 @@
     <Compile Include="Components\HierarchyComponent.cs" />
     <Compile Include="Components\NameComponent.cs" />
     <Compile Include="Components\SimpleComponent.cs" />
+    <Compile Include="Components\TargetComponent.cs" />
     <Compile Include="Components\TypeComponent.cs" />
     <Compile Include="Controllers\ComponentTrackerController.cs" />
     <Compile Include="Controllers\ControllerException.cs" />
