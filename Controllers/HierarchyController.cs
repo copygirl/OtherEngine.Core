@@ -171,6 +171,22 @@ namespace OtherEngine.Core.Controllers
 
 			return child;
 		}
+		/// <summary>
+		/// Adds a group entity with the specified name and child entities to the parent.
+		/// </summary>
+		public static Entity Add(this Entity parent, string groupName, IEnumerable<Entity> children)
+		{
+			var group = parent.Add(groupName);
+			group.Add(children);
+			return group;
+		}
+		/// <summary>
+		/// Adds a group entity with the specified name and child entities to the parent.
+		/// </summary>
+		public static Entity Add(this Entity parent, string groupName, params Entity[] children)
+		{
+			return parent.Add(groupName, children.AsEnumerable());
+		}
 
 		/// <summary>
 		/// Returns the group entities of this entity.
