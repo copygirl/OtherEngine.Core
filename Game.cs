@@ -1,4 +1,5 @@
 ﻿using OtherEngine.Core.Managers;
+using OtherEngine.Core.Components;
 
 namespace OtherEngine.Core
 {
@@ -13,6 +14,9 @@ namespace OtherEngine.Core
 		public ModuleManager Modules { get; private set; }
 
 
+		public Entity Hierarchy { get; private set; }
+
+
 		public Game()
 		{
 			Components = new ComponentManager(this);
@@ -20,7 +24,11 @@ namespace OtherEngine.Core
 			Events = new EventManager(this);
 			Modules = new ModuleManager(this);
 
+			Hierarchy = new Entity(this);
+
 			Modules.Load(typeof(Game).Assembly);
+
+			Hierarchy.Add(new TypeComponent { Value = "Game" });
 		}
 	}
 }
