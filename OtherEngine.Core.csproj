@@ -42,7 +42,7 @@
     <Compile Include="Attributes\ValidatedAttribute.cs" />
     <Compile Include="Components\ControllerComponent.cs" />
     <Compile Include="Components\GuidComponent.cs" />
-    <Compile Include="Components\HierarchyComponent.cs" />
+    <Compile Include="Components\HierarchyComponents.cs" />
     <Compile Include="Components\NameComponent.cs" />
     <Compile Include="Components\SimpleComponent.cs" />
     <Compile Include="Components\TargetComponent.cs" />
@@ -56,8 +56,8 @@
     <Compile Include="Managers\ContainerManager.cs" />
     <Compile Include="Managers\ControllerManager.cs" />
     <Compile Include="Managers\EventManager.cs" />
-    <Compile Include="Managers\Manager.cs" />
     <Compile Include="Managers\ModuleManager.cs" />
+    <Compile Include="Managers\TypeContainerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\AttributeUtils.cs" />
     <Compile Include="Utility\TypeUtils.cs" />

@@ -11,9 +11,13 @@ namespace OtherEngine.Core.Managers
 	/// Handles the creation and lookup of
 	/// the game's controllers and containers.
 	/// </summary>
-	public class ControllerManager : ContainerManager<Controller>, IEnumerable<Controller>
+	public class ControllerManager : TypeContainerManager<Controller>, IEnumerable<Controller>
 	{
 		internal ControllerManager(Game game) : base(game) {  }
+
+
+		protected override string ToString(Type type) { return Controller.ToString(type); }
+
 
 
 		#region Getting controllers
@@ -143,7 +147,7 @@ namespace OtherEngine.Core.Managers
 
 		public IEnumerator<Controller> GetEnumerator()
 		{
-			return Containers.Values
+			return Containers
 				.Select(container => container.GetOrThrow<ControllerComponent>().Controller)
 				.Where(controller => (controller != null))
 				.GetEnumerator();

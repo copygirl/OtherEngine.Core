@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using OtherEngine.Core.Attributes;
+using OtherEngine.Core.Controllers;
 using OtherEngine.Core.Utility;
 
 namespace OtherEngine.Core.Managers
@@ -10,7 +11,7 @@ namespace OtherEngine.Core.Managers
 	/// Handles loading modules and initializing
 	/// their components, controllers and events.
 	/// </summary>
-	public class ModuleManager : Manager
+	public class ModuleManager : ContainerManager<Assembly>
 	{
 		internal ModuleManager(Game game) : base(game) {  }
 
@@ -50,17 +51,24 @@ namespace OtherEngine.Core.Managers
 
 			Game.Events.FireDelayedEvents();
 
-			Game.Components.OnModuleLoaded();
-			Game.Controllers.OnModuleLoaded();
-			Game.Events.OnModuleLoaded();
+			var moduleContainer = CreateContainer(assembly);
+			moduleContainer.AddGroup("Components", Game.Components.Containers);
+			moduleContainer.AddGroup("Controllers", Game.Controllers.Containers);
+			moduleContainer.AddGroup("Events", Game.Events.Containers);
+
+			Game.Components.OnModuleLoaded(moduleContainer);
+			Game.Controllers.OnModuleLoaded(moduleContainer);
+			Game.Events.OnModuleLoaded(moduleContainer);
+
+			var label = "Modules";
+			var group = Game.Hierarchy.GetChild(label) ?? Game.Hierarchy.AddGroup(label);
+			group.Add(moduleContainer);
 
 			// Enable all controllers with the AutoEnable attribute.
 			foreach (var controllerType in controllerTypes)
 				if (controllerType.GetAttribute<AutoEnableAttribute>() != null)
 					Game.Controllers.Enable(Game.Controllers.Get(controllerType));
 		}
-
-		// TODO: Create module entities.
 	}
 }
 

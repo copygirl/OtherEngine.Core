@@ -7,10 +7,12 @@ namespace OtherEngine.Core.Managers
 	/// <summary>
 	/// Handles firing component related events and component containers.
 	/// </summary>
-	public class ComponentManager : ContainerManager<Component>
+	public class ComponentManager : TypeContainerManager<Component>
 	{
 		internal ComponentManager(Game game) : base(game) {  }
 
+
+		protected override string ToString(Type type) { return Component.ToString(type); }
 
 		/// <summary>
 		/// Called when a component is added to an entity.

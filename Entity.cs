@@ -137,16 +137,19 @@ namespace OtherEngine.Core
 
 		public override string ToString()
 		{
-			var str = new StringBuilder("[");
-			str.Append(Get<TypeComponent>()?.Value ?? "Entity");
+			var sb = new StringBuilder("[");
+			sb.Append(Get<TypeComponent>()?.Value ?? "Entity");
 
 			var customName = Get<NameComponent>()?.Value;
-			if (customName != null) str.Append(" \"").Append(customName).Append('"');
+			if (customName != null) sb.Append(" \"").Append(customName).Append('"');
 
 			var guid = Get<GuidComponent>()?.Value;
-			if (guid != null) str.Append(" {").Append(guid).Append('}');
+			if (guid != null) sb.Append(" {").Append(guid).Append('}');
+
+			if (Has<HierarchyLinkComponent>())
+				sb.Append(": ").Append(Get<TargetComponent>()?.Value);
 			
-			return str.Append(']').ToString();
+			return sb.Append(']').ToString();
 		}
 
 		#endregion

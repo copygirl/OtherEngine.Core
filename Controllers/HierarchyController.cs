@@ -12,28 +12,69 @@ namespace OtherEngine.Core.Controllers
 	[AutoEnable]
 	public class HierarchyController : Controller
 	{
+		#region Adding entities
+
 		/// <summary>
 		/// Adds a child entity to a parent entity.
+		/// 
 		/// This creates HierarchyComponents if necessary.
 		/// Throws an exception if the child entity already has a parent.
 		/// </summary>
 		public void Add(Entity parent, Entity child)
+		{
+			HierarchyComponent childHier, parentHier;
+			GetHierarchies(parent, child, out childHier, out parentHier);
+
+			parentHier._children.Add(child);
+			childHier.Parent = parent;
+		}
+
+		/// <summary>
+		/// Adds a labeled child entity to a parent entity,
+		/// so it can be looked up using that label.
+		/// 
+		/// This creates HierarchyComponents if necessary.
+		/// Throws an exception if the child entity already has a parent.
+		/// Throws an exception if the parent already uses that label.
+		/// </summary>
+		public void Add(Entity parent, string label, Entity child)
+		{
+			HierarchyComponent childHier, parentHier;
+			GetHierarchies(parent, child, out childHier, out parentHier);
+
+			if (label == null)
+				throw new ArgumentNullException("label");
+
+			try { parentHier._labeledChildren.Add(label, child); }
+			catch (Exception ex) {
+				throw new ArgumentException(string.Format(
+					"{0} is already using the label '{1}'", parent, label), ex);
+			}
+
+			child.Add(new HierarchyLabelComponent(label));
+			childHier.Parent = parent;
+		}
+
+		static void GetHierarchies(Entity parent, Entity child,
+			out HierarchyComponent childHier, out HierarchyComponent parentHier)
 		{
 			if (parent == null)
 				throw new ArgumentNullException("parent");
 			if (child == null)
 				throw new ArgumentNullException("child");
 
-			var childHier = child.GetOrCreate<HierarchyComponent>();
+			childHier = child.GetOrCreate<HierarchyComponent>();
 			if (childHier.Parent != null)
-				throw new InvalidOperationException(string.Format(
-					"{0} is already the child entity of {1}", child, childHier.Parent));
+				throw new ArgumentException(string.Format(
+					"{0} is already the child entity of {1}",
+					child, childHier.Parent), "child");
 
-			var parentHier = parent.GetOrCreate<HierarchyComponent>();
-
-			parentHier._children.Add(child);
-			childHier.Parent = parent;
+			parentHier = parent.GetOrCreate<HierarchyComponent>();
 		}
+
+		#endregion
+
+		#region Removing entities
 
 		/// <summary>
 		/// Removes the child entity from its parent.
@@ -45,14 +86,20 @@ namespace OtherEngine.Core.Controllers
 			
 			var childHier = child.Get<HierarchyComponent>();
 			if ((childHier == null) || (childHier.Parent == null))
-				throw new InvalidOperationException(string.Format(
-					"{0} doesn't have a parent", child));
+				throw new ArgumentException(string.Format(
+					"{0} doesn't have a parent", child), "child");
 
 			var parentHier = childHier.Parent.GetOrThrow<HierarchyComponent>();
 
-			parentHier._children.Remove(child);
+			if (!parentHier._children.Remove(child)) {
+				string label = child.Get<HierarchyLabelComponent>()?.Value;
+				parentHier._labeledChildren.Remove(label);
+			}
+
 			childHier.Parent = null;
 		}
+
+		#endregion
 	}
 
 	public static class EntityHierarchyExtensions
@@ -71,7 +118,7 @@ namespace OtherEngine.Core.Controllers
 		}
 
 		/// <summary>
-		/// Returns the children of this entity, null if none.
+		/// Returns the children of this entity.
 		/// </summary>
 		public static IEnumerable<Entity> GetChildren(this Entity entity)
 		{
@@ -89,6 +136,17 @@ namespace OtherEngine.Core.Controllers
 			return entity.GetChildren().FirstOrDefault();
 		}
 
+		/// <summary>
+		/// Returns the child with this label of this entity, null if none.
+		/// </summary>
+		public static Entity GetChild(this Entity entity, string label)
+		{
+			if (entity == null)
+				throw new ArgumentNullException("entity");
+
+			return entity.Get<HierarchyComponent>()?[label];
+		}
+
 		#endregion
 
 		#region Adding / removing child entities
@@ -100,10 +158,19 @@ namespace OtherEngine.Core.Controllers
 		{
 			if (parent == null)
 				throw new ArgumentNullException("parent");
-			if (child == null)
-				throw new ArgumentNullException("child");
 
 			parent.Game.Controllers.Get<HierarchyController>().Add(parent, child);
+		}
+
+		/// <summary>
+		/// Adds a labeled child entity to the parent entity.
+		/// </summary>
+		public static void Add(this Entity parent, string label, Entity child)
+		{
+			if (parent == null)
+				throw new ArgumentNullException("parent");
+
+			parent.Game.Controllers.Get<HierarchyController>().Add(parent, label, child);
 		}
 
 		/// <summary>
@@ -125,11 +192,6 @@ namespace OtherEngine.Core.Controllers
 		/// </summary>
 		public static void Add(this Entity parent, params Entity[] children)
 		{
-			if (children == null)
-				throw new ArgumentNullException("children");
-			if (children.Length <= 0)
-				throw new ArgumentException("children doesn't contain any elements", "children");
-			
 			parent.Add(children.AsEnumerable());
 		}
 
@@ -146,72 +208,134 @@ namespace OtherEngine.Core.Controllers
 
 		#endregion
 
-		#region Adding / getting group entities
+		#region Group related
 
 		/// <summary>
-		/// Adds a group entity with the specified name to the parent.
+		/// Adds a (labeled) group entity with the specified name to the parent.
 		/// </summary>
-		public static Entity Add(this Entity parent, string groupName)
+		public static Entity AddGroup(this Entity parent, string groupName)
 		{
 			if (parent == null)
 				throw new ArgumentNullException("parent");
 			if (groupName == null)
 				throw new ArgumentNullException("groupName");
 
-			if (parent.Get(groupName) != null)
-				throw new ArgumentException(string.Format(
-					"[Group \"{0}\"] already exists in {1}", groupName, parent), "groupName");
-			
 			var child = new Entity(parent.Game) {
-				new GroupComponent(),
+				new HierarchyGroupComponent(),
 				new TypeComponent { Value = "Group" },
 				new NameComponent { Value = groupName }
 			};
-			parent.Add(child);
+			parent.Add(groupName, child);
 
 			return child;
 		}
 		/// <summary>
-		/// Adds a group entity with the specified name and child entities to the parent.
+		/// Adds a (labeled) group entity with the specified name to the parent.
 		/// </summary>
-		public static Entity Add(this Entity parent, string groupName, IEnumerable<Entity> children)
+		public static Entity Add(this Entity parent, string groupName)
+		{
+			return parent.AddGroup(groupName);
+		}
+
+		/// <summary>
+		/// Adds a (labeled) group entity with the specified name and child entities to the parent.
+		/// </summary>
+		public static Entity AddGroup(this Entity parent, string groupName, IEnumerable<Entity> children)
 		{
 			var group = parent.Add(groupName);
 			group.Add(children);
 			return group;
 		}
 		/// <summary>
-		/// Adds a group entity with the specified name and child entities to the parent.
+		/// Adds a (labeled) group entity with the specified name and child entities to the parent.
 		/// </summary>
-		public static Entity Add(this Entity parent, string groupName, params Entity[] children)
+		public static Entity AddGroup(this Entity parent, string groupName, params Entity[] children)
 		{
-			return parent.Add(groupName, children.AsEnumerable());
+			return parent.AddGroup(groupName, children.AsEnumerable());
+		}
+
+		#endregion
+
+		#region Adding / getting linked entities
+
+		/// <summary>
+		/// Adds a link entity which points to linkedEntity,
+		/// without modifying the hierarchy of the linkedEntity.
+		/// </summary>
+		public static Entity AddLink(this Entity parent, Entity linkedEntity)
+		{
+			var link = CreateLinkEntity(parent, linkedEntity);
+			parent.Add(link);
+			return link;
+		}
+		/// <summary>
+		/// Adds a labeled link entity which points to linkedEntity,
+		/// without modifying the hierarchy of the linkedEntity.
+		/// </summary>
+		public static Entity AddLink(this Entity parent, string label, Entity linkedEntity)
+		{
+			var link = CreateLinkEntity(parent, linkedEntity);
+			parent.Add(label, link);
+			return link;
+		}
+		static Entity CreateLinkEntity(Entity parent, Entity linkedEntity)
+		{
+			if (parent == null)
+				throw new ArgumentNullException("parent");
+			if (linkedEntity == null)
+				throw new ArgumentNullException("linkedEntity");
+			if (linkedEntity.Has<HierarchyLinkComponent>())
+				throw new ArgumentException(string.Format(
+					"Cannot create link entity to another link entity ({0})", linkedEntity), "linkedEntity");
+
+			return new Entity(parent.Game) {
+				new HierarchyLinkComponent(),
+				new TypeComponent { Value = "Link" },
+				new TargetComponent { Value = linkedEntity }
+			};
 		}
 
 		/// <summary>
-		/// Returns the group entities of this entity.
+		/// Creates and adds link entities which point to
+		/// linkedEntities, without modifying their hierarchy.
 		/// </summary>
-		public static IEnumerable<Entity> GetGroups(this Entity entity)
+		public static void AddLinks(this Entity parent, IEnumerable<Entity> linkedEntities)
 		{
-			return entity.GetChildren().Where(child =>
-				(child.Get<GroupComponent>() != null));
+			if (linkedEntities == null)
+				throw new ArgumentNullException("linkedEntities");
+
+			parent.Add(linkedEntities.Select(
+				linkedEntity => CreateLinkEntity(parent, linkedEntity)));
 		}
 
 		/// <summary>
-		/// Returns the group with the specified name of this entity, null if none.
+		/// Adds a (labeled) group with new link entities
+		/// pointing to the specified linkedEntities.
 		/// </summary>
-		public static Entity Get(this Entity entity, string groupName)
+		public static Entity AddLinkGroup(this Entity parent, string groupName, IEnumerable<Entity> linkedEntities)
 		{
-			return entity.GetGroups().FirstOrDefault(child =>
-				(child.Get<NameComponent>()?.Value == groupName));
+			var group = parent.AddGroup(groupName);
+			group.AddLinks(linkedEntities);
+			return group;
 		}
 
-
 		/// <summary>
-		/// Private component to identify group entities.
+		/// If the entity is a link entity, returns the linked
+		/// entity, otherwise just returns the entity itself.
 		/// </summary>
-		class GroupComponent : Component
+		public static Entity FollowLinked(this Entity entity)
 		{
+			return (entity.Has<HierarchyLinkComponent>()
+				? entity.GetOrThrow<TargetComponent>().Value
+				: entity);
+		}
+		/// <summary>
+		/// If any entity in this enumerable is a link entity, yields
+		/// the linked entity, otherwise just yields the entity itself.
+		/// </summary>
+		public static IEnumerable<Entity> FollowLinked(this IEnumerable<Entity> entities)
+		{
+			return entities.Select(entity => FollowLinked(entity));
 		}
 
 		#endregion

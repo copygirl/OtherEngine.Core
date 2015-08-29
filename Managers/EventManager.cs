@@ -12,13 +12,16 @@ namespace OtherEngine.Core.Managers
 	/// <summary>
 	/// Handles firing of events and event containers.
 	/// </summary>
-	public class EventManager : ContainerManager<Event>
+	public class EventManager : TypeContainerManager<Event>
 	{
 		LinkedList<Event> _delayedEvents;
 		LinkedListNode<Event> _currentEvent;
 
 
 		internal EventManager(Game game) : base(game) {  }
+
+
+		protected override string ToString(Type type) { return Event.ToString(type); }
 
 
 		#region Controller enabling / disabling
