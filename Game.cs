@@ -19,6 +19,8 @@ namespace OtherEngine.Core
 			Controllers = new ControllerManager(this);
 			Events = new EventManager(this);
 			Modules = new ModuleManager(this);
+
+			Modules.Load(typeof(Game).Assembly);
 		}
 	}
 }
