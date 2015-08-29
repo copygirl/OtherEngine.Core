@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using OtherEngine.Core.Attributes;
+using OtherEngine.Core.Components;
 using OtherEngine.Core.Controllers;
 using OtherEngine.Core.Utility;
 
@@ -72,6 +73,13 @@ namespace OtherEngine.Core.Managers
 			foreach (var controllerType in controllerTypes)
 				if (controllerType.GetAttribute<AutoEnableAttribute>() != null)
 					Game.Controllers.Enable(Game.Controllers.Get(controllerType));
+		}
+
+		protected override Entity CreateContainer(Assembly key)
+		{
+			var container = base.CreateContainer(key);
+			container.Add(new NameComponent { Value = key.GetName().Name });
+			return container;
 		}
 	}
 }
