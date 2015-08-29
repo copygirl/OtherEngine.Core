@@ -14,7 +14,9 @@ namespace OtherEngine.Core.Managers
 			= new Dictionary<Type, Entity>();
 
 
-		internal ContainerManager(Game game) : base(game) {  }
+
+		internal ContainerManager(Game game)
+			: base(game) {  }
 
 
 		#region Getting containers
@@ -84,10 +86,22 @@ namespace OtherEngine.Core.Managers
 			return container;
 		}
 
-		internal virtual void OnModuleLoaded(IEnumerable<Type> types)
+		/// <summary>
+		/// Called when a module is being loaded.
+		/// For the duration of this, events are delayed. See ModuleManager.
+		/// </summary>
+		internal virtual void OnModuleLoad(IEnumerable<Type> types)
 		{
 			foreach (var type in types)
 				CreateContainer(type);
+		}
+
+		/// <summary>
+		/// Called after a module has been loaded.
+		/// This happens after OnModuleLoad has been called for every manager.
+		/// </summary>
+		internal virtual void OnModuleLoaded()
+		{
 		}
 	}
 }

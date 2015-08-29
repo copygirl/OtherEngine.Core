@@ -44,11 +44,15 @@ namespace OtherEngine.Core.Managers
 
 			Game.Events.DelayEvents();
 
-			Game.Components.OnModuleLoaded(componentTypes);
-			Game.Controllers.OnModuleLoaded(controllerTypes);
-			Game.Events.OnModuleLoaded(eventTypes);
+			Game.Components.OnModuleLoad(componentTypes);
+			Game.Controllers.OnModuleLoad(controllerTypes);
+			Game.Events.OnModuleLoad(eventTypes);
 
 			Game.Events.FireDelayedEvents();
+
+			Game.Components.OnModuleLoaded();
+			Game.Controllers.OnModuleLoaded();
+			Game.Events.OnModuleLoaded();
 
 			// Enable all controllers with the AutoEnable attribute.
 			foreach (var controllerType in controllerTypes)
