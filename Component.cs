@@ -40,7 +40,7 @@ namespace OtherEngine.Core
 			return string.Format("[Component {0}]", GetName(type));
 		}
 
-		public override string ToString()
+		public sealed override string ToString()
 		{
 			return ToString(GetType());
 		}

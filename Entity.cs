@@ -8,7 +8,7 @@ namespace OtherEngine.Core
 	/// <summary>
 	/// Basic engine object, capable of holding any number of components.
 	/// </summary>
-	public class Entity : ICollection<Component>
+	public sealed class Entity : ICollection<Component>
 	{
 		readonly Dictionary<Type, Component> _components =
 			new Dictionary<Type, Component>();
