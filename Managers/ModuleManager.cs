@@ -36,11 +36,12 @@ namespace OtherEngine.Core.Managers
 			var eventTypes = new List<Type>();
 
 			foreach (var type in assembly.GetTypes()) {
+				ValidatedAttribute.ValidateAll(type);
+
+				if (type.IsAbstract) continue;
 				if (type.IsSubclassOf(typeof(Component))) componentTypes.Add(type);
 				if (type.IsSubclassOf(typeof(Controller))) controllerTypes.Add(type);
 				if (type.IsSubclassOf(typeof(Event))) eventTypes.Add(type);
-
-				ValidatedAttribute.ValidateAll(type);
 			}
 
 			if ((componentTypes.Count + controllerTypes.Count + eventTypes.Count) <= 0)
