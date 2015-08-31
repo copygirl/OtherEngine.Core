@@ -79,8 +79,11 @@ namespace OtherEngine.Core.Utility
 			sb.Remove(index, sb.Length - index);
 
 			sb.Append('<');
-			foreach (var t in type.GetGenericArguments())
+			foreach (var t in type.GetGenericArguments()) {
 				AppendPrettyName(sb, t);
+				sb.Append(", ");
+			}
+			sb.Remove(sb.Length - 2, 2);
 			sb.Append('>');
 
 			return sb;
