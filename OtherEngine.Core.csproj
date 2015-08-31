@@ -42,16 +42,20 @@
     <Compile Include="Attributes\ValidatedAttribute.cs" />
     <Compile Include="Components\ControllerComponent.cs" />
     <Compile Include="Components\GuidComponent.cs" />
-    <Compile Include="Components\HierarchyComponents.cs" />
     <Compile Include="Components\NameComponent.cs" />
     <Compile Include="Components\SimpleComponent.cs" />
     <Compile Include="Components\TargetComponent.cs" />
     <Compile Include="Components\TypeComponent.cs" />
     <Compile Include="Controllers\ComponentTrackerController.cs" />
     <Compile Include="Controllers\ControllerException.cs" />
-    <Compile Include="Controllers\HierarchyController.cs" />
     <Compile Include="Events\ComponentEvents.cs" />
     <Compile Include="Events\ControllerEvents.cs" />
+    <Compile Include="Hierarchy\EntityHierarchyExtensions.cs" />
+    <Compile Include="Hierarchy\HierarchyComponent.cs" />
+    <Compile Include="Hierarchy\HierarchyController.cs" />
+    <Compile Include="Hierarchy\HierarchyGroupComponent.cs" />
+    <Compile Include="Hierarchy\HierarchyLabelComponent.cs" />
+    <Compile Include="Hierarchy\HierarchyLinkComponent.cs" />
     <Compile Include="Managers\ComponentManager.cs" />
     <Compile Include="Managers\ContainerManager.cs" />
     <Compile Include="Managers\ControllerManager.cs" />
@@ -70,6 +74,7 @@
     <Folder Include="Components\" />
     <Folder Include="Controllers\" />
     <Folder Include="Events\" />
+    <Folder Include="Hierarchy\" />
     <Folder Include="Managers\" />
     <Folder Include="Utility\" />
   </ItemGroup>

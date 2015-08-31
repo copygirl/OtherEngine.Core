@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using OtherEngine.Core.Attributes;
 using OtherEngine.Core.Components;
-using OtherEngine.Core.Controllers;
+using OtherEngine.Core.Hierarchy;
 using OtherEngine.Core.Utility;
 
 namespace OtherEngine.Core.Managers

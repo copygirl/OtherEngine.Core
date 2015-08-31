@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OtherEngine.Core.Controllers;
+using OtherEngine.Core.Hierarchy;
 
 namespace OtherEngine.Core.Managers
 {

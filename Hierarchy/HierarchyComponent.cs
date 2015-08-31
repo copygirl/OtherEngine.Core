@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OtherEngine.Core.Components
+namespace OtherEngine.Core.Hierarchy
 {
 	/// <summary>
 	/// Adds hierarchy information to entities.
@@ -25,37 +25,12 @@ namespace OtherEngine.Core.Components
 		/// <summary>
 		/// Gets a child entity of this entity with this label, null if none.
 		/// </summary>
-		public Entity this[string label] { get {
+		public Entity this[string label] {
+			get {
 				Entity entity;
 				return (_labeledChildren.TryGetValue(label, out entity) ? entity : null);
-			} }
-	}
-
-	/// <summary>
-	/// Added to entities when they're added to the
-	/// hierarchy of another entity using a label.
-	/// </summary>
-	public class HierarchyLabelComponent : SimpleComponent<string>
-	{
-		internal HierarchyLabelComponent(string label)
-			: base(label) {  }
-	}
-
-	/// <summary>
-	/// Component to identify group entities.
-	/// Group entities use their NameComponent as the name for the group.
-	/// </summary>
-	public class HierarchyGroupComponent : Component
-	{
-		internal HierarchyGroupComponent() {  }
-	}
-
-	/// <summary>
-	/// Component to identify hierarchy link entities.
-	/// Link entities use their TargetComponent for the entity they're linked to.
-	/// </summary>
-	public class HierarchyLinkComponent : Component
-	{
-		internal HierarchyLinkComponent() {  }
+			}
+		}
 	}
 }
+

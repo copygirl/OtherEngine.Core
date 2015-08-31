@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OtherEngine.Core.Components;
+using OtherEngine.Core.Hierarchy;
 
 namespace OtherEngine.Core
 {
