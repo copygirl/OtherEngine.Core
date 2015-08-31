@@ -79,6 +79,7 @@ namespace OtherEngine.Core.Managers
 
 		void Initialize(Controller controller)
 		{
+			controller.State = ControllerState.Disabled;
 			controller.Game = Game;
 		}
 
