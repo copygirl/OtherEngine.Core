@@ -14,7 +14,7 @@ namespace OtherEngine.Core.Attributes
 		public override void Validate(ICustomAttributeProvider target)
 		{
 			var controllerType = (Type)target;
-			if (!controllerType.Is<Controller>())
+			if (!controllerType.IsSubclassOf(typeof(Controller)))
 				throw new AttributeUsageException(this, target, string.Format(
 					"{0} is not a Controller", target.GetName()));
 
