@@ -10,6 +10,10 @@ namespace OtherEngine.Core.Utility
 		/// Returns if the current type is the same type or a subtype
 		/// of the specified type. Also works for interfaces and generic
 		/// type definitions.
+		/// 
+		/// subType.IsSubclassOf(type) should be used instead, if the
+		/// subType is known to not be an interface, and type is not
+		/// a generic type definition.
 		/// </summary>
 		public static bool Is(this Type subType, Type type)
 		{
@@ -23,9 +27,8 @@ namespace OtherEngine.Core.Utility
 			if (type.IsInterface) {
 				if (subType.GetInterfaces().Any(i => IsExact(type, i)))
 					return true;
-			}
 			// An interface can't be a subtype of a class.
-			else if (subType.IsInterface)
+			} else if (subType.IsInterface)
 				return false;
 
 			// Go through the current type's hierarchy, testing
@@ -41,20 +44,26 @@ namespace OtherEngine.Core.Utility
 		/// <summary>
 		/// Returns if the current type is the same type or a subtype
 		/// of the generic type. Also works for interfaces.
+		/// 
+		/// subType.IsSubclassOf(typeof(TType)) should be used instead,
+		/// if the subType is known to not be an interface, and type is
+		/// not a generic type definition.
 		/// </summary>
 		public static bool Is<TType>(this Type subType)
 		{
 			return Is(subType, typeof(TType));
 		}
+
 		static bool IsExact(Type type, Type subType)
 		{
 			return (type == ((type.IsGenericTypeDefinition && subType.IsGenericType)
 				? subType.GetGenericTypeDefinition() : subType));
 		}
 
+
 		/// <summary>
 		/// Returns the pretty name of a type.
-		/// For non-generic types, returns the same as Type.Name.
+		/// For non-generic types, returns the same as type.Name.
 		/// For generic types, returns for example List&lt;string&gt; instead of List`1.
 		/// </summary>
 		public static string GetPrettyName(this Type type)
