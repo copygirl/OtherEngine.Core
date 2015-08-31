@@ -38,13 +38,16 @@ namespace OtherEngine.Core.Managers
 			if (container == null) {
 				if (type.IsGenericType && !type.IsGenericTypeDefinition) {
 
-					// Verify that the generic type definition
-					// of this type was previously loaded.
+					// Attempt to get the container of the generic type definition
+					// of this type. Throws an exception if it's not been loaded.
 					var typeDef = type.GetGenericTypeDefinition();
-					GetContainer(typeDef);
+					var typeDefContainer = GetContainer(typeDef);
 
 					// Create a new container for specific type.
 					container = CreateContainer(type);
+
+					// Add this container to typeDef container's hierarchy.
+					typeDefContainer.Add(container);
 
 				} else throw new InvalidOperationException(string.Format(
 					"The module containing {0} has not been loaded", ToString(type)));
