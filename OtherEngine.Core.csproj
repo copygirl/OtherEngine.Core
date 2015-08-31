@@ -60,6 +60,7 @@
     <Compile Include="Managers\TypeContainerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\AttributeUtils.cs" />
+    <Compile Include="Utility\ReadOnlyCollectionWrapper.cs" />
     <Compile Include="Utility\TypeUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
