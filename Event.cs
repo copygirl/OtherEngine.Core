@@ -17,7 +17,7 @@ namespace OtherEngine.Core
 
 		#region GetName / ToString related
 
-		static readonly Regex _removeEventRegex = new Regex("Event(?:<.*>)?$");
+		static readonly Regex _removeEventRegex = new Regex(@"Event(<.*>)?$");
 
 		/// <summary>
 		/// Returns the simple name of the event type, without the "Event" suffix.
@@ -30,7 +30,7 @@ namespace OtherEngine.Core
 				throw new ArgumentException(string.Format(
 					"{0} is not an Event", type), "type");
 
-			return _removeEventRegex.Replace(type.GetPrettyName(), "");
+			return _removeEventRegex.Replace(type.GetPrettyName(), "$1");
 		}
 
 		public static string ToString(Type type)

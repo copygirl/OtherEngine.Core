@@ -48,7 +48,7 @@ namespace OtherEngine.Core
 
 		#region GetName / ToString related
 
-		static readonly Regex _removeControllerRegex = new Regex("Controller(?:<.*>)?$");
+		static readonly Regex _removeControllerRegex = new Regex("Controller(<.*>)?$");
 
 		/// <summary>
 		/// Returns the simple name of the component type, without the "Component" suffix.
@@ -61,7 +61,7 @@ namespace OtherEngine.Core
 				throw new ArgumentException(string.Format(
 					"{0} is not a Controller", type), "type");
 
-			return _removeControllerRegex.Replace(type.GetPrettyName(), "");
+			return _removeControllerRegex.Replace(type.GetPrettyName(), "$1");
 		}
 
 		public static string ToString(Type type)

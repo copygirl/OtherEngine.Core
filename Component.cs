@@ -19,7 +19,7 @@ namespace OtherEngine.Core
 
 		#region GetName / ToString related
 
-		static readonly Regex _removeComponentRegex = new Regex("Component(?:<.*>)?$");
+		static readonly Regex _removeComponentRegex = new Regex("Component(<.*>)?$");
 
 		/// <summary>
 		/// Returns the simple name of the component type, without the "Component" suffix.
@@ -32,7 +32,7 @@ namespace OtherEngine.Core
 				throw new ArgumentException(string.Format(
 					"{0} is not a Component", type), "type");
 
-			return _removeComponentRegex.Replace(type.GetPrettyName(), "");
+			return _removeComponentRegex.Replace(type.GetPrettyName(), "$1");
 		}
 
 		public static string ToString(Type type)
