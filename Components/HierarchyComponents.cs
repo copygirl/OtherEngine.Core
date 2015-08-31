@@ -20,7 +20,7 @@ namespace OtherEngine.Core.Components
 		/// <summary>
 		/// Gets the child entities of this entity.
 		/// </summary>
-		public IEnumerable<Entity> Children { get { return _children.Concat(_labeledChildren.Values); } }
+		public IEnumerable<Entity> Children { get { return _labeledChildren.Values.Concat(_children); } }
 
 		/// <summary>
 		/// Gets a child entity of this entity with this label, null if none.
