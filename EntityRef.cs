@@ -342,7 +342,8 @@ namespace OtherEngine.Core
 			this Entity entity, TComponent component)
 			where TComponent : Component
 		{
-			ComponentCheck<TComponent>(component, "component");
+			if (entity == null) throw new ArgumentNullException("entity");
+			ComponentCheckAndAdd<TComponent>(entity, component, "component");
 			return new EntityRef<TComponent>(entity, component);
 		}
 
@@ -355,8 +356,9 @@ namespace OtherEngine.Core
 			where TFirst : Component
 			where TSecond : Component
 		{
-			ComponentCheck<TFirst>(first, "first");
-			ComponentCheck<TSecond>(second, "second");
+			if (entity == null) throw new ArgumentNullException("entity");
+			ComponentCheckAndAdd<TFirst>(entity, first, "first");
+			ComponentCheckAndAdd<TSecond>(entity, second, "second");
 			return new EntityRef<TFirst, TSecond>(entity, first, second);
 		}
 
@@ -370,24 +372,25 @@ namespace OtherEngine.Core
 			where TSecond : Component
 			where TThird : Component
 		{
-			ComponentCheck<TFirst>(first, "first");
-			ComponentCheck<TSecond>(second, "second");
-			ComponentCheck<TThird>(third, "third");
+			if (entity == null) throw new ArgumentNullException("entity");
+			ComponentCheckAndAdd<TFirst>(entity, first, "first");
+			ComponentCheckAndAdd<TSecond>(entity, second, "second");
+			ComponentCheckAndAdd<TThird>(entity, third, "third");
 			return new EntityRef<TFirst, TSecond, TThird>(entity, first, second, third);
 		}
 
 
-		static void ComponentCheck<TComponent>(TComponent component, string paramName)
+		static void ComponentCheckAndAdd<TComponent>(Entity entity, TComponent component, string paramName)
 			where TComponent : Component
 		{
 			if (component == null)
 				throw new ArgumentNullException(paramName);
-			
 			if (typeof(TComponent) != component.GetType())
 				throw new ArgumentException(string.Format(
 					"{0} isn't the same type as {1}",
 					Component.ToString(typeof(TComponent)), component),
 					"T" + char.ToUpper(paramName[0]) + paramName.Substring(1));
+			entity.Add(component);
 		}
 	}
 }
