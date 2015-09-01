@@ -7,7 +7,8 @@ using OtherEngine.Core.Hierarchy;
 namespace OtherEngine.Core
 {
 	/// <summary>
-	/// Basic engine object, capable of holding any number of components.
+	/// Basic engine object, capable of holding any
+	/// number of components, though only one per type.
 	/// </summary>
 	public sealed class Entity : ICollection<Component>
 	{
@@ -16,7 +17,7 @@ namespace OtherEngine.Core
 
 
 		/// <summary>
-		/// Gets the main game entity.
+		/// Gets the main game instance.
 		/// </summary>
 		public Game Game { get; private set; }
 
@@ -32,6 +33,9 @@ namespace OtherEngine.Core
 
 		#region Getting components
 
+		/// <summary>
+		/// Gets a component from the entity of type TComponent, null if none.
+		/// </summary>
 		public TComponent Get<TComponent>() where TComponent : Component
 		{
 			Component component;
@@ -39,6 +43,9 @@ namespace OtherEngine.Core
 				? (TComponent)component : null);
 		}
 
+		/// <summary>
+		/// Gets or creates (and adds) a component from the entity of type TComponent.
+		/// </summary>
 		public TComponent GetOrCreate<TComponent>() where TComponent : Component, new()
 		{
 			var component = Get<TComponent>();
@@ -47,6 +54,10 @@ namespace OtherEngine.Core
 			return component;
 		}
 
+		/// <summary>
+		/// Gets a component from the entity of type TComponent.
+		/// Throws an exception if there's no TComponent on this entity.
+		/// </summary>
 		public TComponent GetOrThrow<TComponent>() where TComponent : Component
 		{
 			var component = Get<TComponent>();
@@ -56,6 +67,9 @@ namespace OtherEngine.Core
 			return component;
 		}
 
+		/// <summary>
+		/// Returns if there's a component of type TComponent on this entity.
+		/// </summary>
 		public bool Has<TComponent>() where TComponent : Component
 		{
 			return (Get<TComponent>() != null);
@@ -65,6 +79,11 @@ namespace OtherEngine.Core
 
 		#region Adding / removing components
 
+		/// <summary>
+		/// Adds the component to this entity.
+		/// Causes ComponentAdded events to be fired.
+		/// Throws an exception if there's already a component of the same type.
+		/// </summary>
 		public void Add(Component component)
 		{
 			if (component == null)
@@ -79,12 +98,11 @@ namespace OtherEngine.Core
 			Game.Components.OnAdded(this, component);
 		}
 
-		bool ICollection<Component>.Remove(Component component)
-		{
-			var success = _components.Remove(component.GetType());
-			if (success) Game.Components.OnRemoved(this, component);
-			return success;
-		}
+		/// <summary>
+		/// Removes the component from this entity.
+		/// Causes ComponentRemoved events to be fired.
+		/// Throws an exception if the component is not on this entity.
+		/// </summary>
 		public void Remove(Component component)
 		{
 			if (component == null)
@@ -92,6 +110,13 @@ namespace OtherEngine.Core
 			if (!((ICollection<Component>)this).Remove(component))
 				throw new ArgumentException(string.Format(
 					"{0} doesn't have a {1}", this, component), "component");
+		}
+
+		bool ICollection<Component>.Remove(Component component)
+		{
+			var success = _components.Remove(component.GetType());
+			if (success) Game.Components.OnRemoved(this, component);
+			return success;
 		}
 
 		#endregion
@@ -122,6 +147,10 @@ namespace OtherEngine.Core
 			_components.Values.CopyTo(array, index);
 		}
 
+		#endregion
+
+		#region IEnumerable implementation
+
 		public IEnumerator<Component> GetEnumerator()
 		{
 			return _components.Values.GetEnumerator();
@@ -133,6 +162,7 @@ namespace OtherEngine.Core
 		}
 
 		#endregion
+
 
 		#region ToString
 
