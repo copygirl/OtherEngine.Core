@@ -33,6 +33,7 @@
     <Compile Include="Component.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="EntityRef.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Attributes\AttributeUsageException.cs" />
     <Compile Include="Attributes\AutoEnableAttribute.cs" />
