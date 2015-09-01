@@ -32,10 +32,14 @@ namespace OtherEngine.Core.Events
 	public class ComponentAddedEvent<TComponent> : ComponentAddedEvent
 		where TComponent : Component
 	{
+		public new EntityRef<TComponent> Entity { get; private set; }
 		public new TComponent Component { get { return (TComponent)base.Component; } }
 
 		public ComponentAddedEvent(Entity entity, TComponent component)
-			: base(entity, component) {  }
+			: base(entity, component)
+		{
+			Entity = new EntityRef<TComponent>(base.Entity, Component);
+		}
 	}
 
 
@@ -54,10 +58,14 @@ namespace OtherEngine.Core.Events
 	public class ComponentRemovedEvent<TComponent> : ComponentRemovedEvent
 		where TComponent : Component
 	{
+		public new EntityRef<TComponent> Entity { get; private set; }
 		public new TComponent Component { get { return (TComponent)base.Component; } }
 
 		public ComponentRemovedEvent(Entity entity, TComponent component)
-			: base(entity, component) {  }
+			: base(entity, component)
+		{
+			Entity = new EntityRef<TComponent>(base.Entity, Component);
+		}
 	}
 }
 
