@@ -46,6 +46,11 @@ namespace OtherEngine.Core
 		}
 
 		#endregion
+
+
+		public sealed override bool Equals(object obj) { return base.Equals(obj); }
+
+		public sealed override int GetHashCode() { return base.GetHashCode(); }
 	}
 }
 
