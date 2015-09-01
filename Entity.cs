@@ -112,6 +112,16 @@ namespace OtherEngine.Core
 					"{0} doesn't have a {1}", this, component), "component");
 		}
 
+		/// <summary>
+		/// Removes a component from this entity of type TComponent.
+		/// Throws an exception if the component is not on this entity.
+		/// </summary>
+		public void Remove<TComponent>() where TComponent : Component
+		{
+			var component = GetOrThrow<TComponent>();
+			((ICollection<Component>)this).Remove(component);
+		}
+
 		bool ICollection<Component>.Remove(Component component)
 		{
 			var success = _components.Remove(component.GetType());
