@@ -5,8 +5,9 @@ using System.Reflection;
 using OtherEngine.Core.Attributes;
 using OtherEngine.Core.Events;
 using OtherEngine.Core.Utility;
+using System.Linq.Expressions;
 
-namespace OtherEngine.Core.Controllers
+namespace OtherEngine.Core.Tracking
 {
 	[AutoEnable]
 	public class ComponentTrackerController : Controller
@@ -29,7 +30,7 @@ namespace OtherEngine.Core.Controllers
 					"{0} is abstract", componentType), "componentType");
 
 			var controllers = Game.Components.GetContainer(componentType)
-				?.Get<TrackedEntitiesComponent>()?.Controllers;
+				?.Get<TrackedEntitiesComponent>()?._controllers;
 
 			return controllers?.ToArray() ?? new Controller[0];
 		}
@@ -61,10 +62,16 @@ namespace OtherEngine.Core.Controllers
 				var componentType = setter.Key;
 				var componentContainer = Game.Components.GetContainer(componentType);
 
-				var trackedComponent = componentContainer.GetOrCreate<TrackedEntitiesComponent>();
-				trackedComponent.Controllers.Add(ev.Controller);
+				var trackedComponent = componentContainer.Get<TrackedEntitiesComponent>();
+				if (trackedComponent == null) {
+					var collectionType = typeof(EntityCollection<>).MakeGenericType(componentType);
+					var collection = (EntityCollection)Activator.CreateInstance(collectionType, true);
+					trackedComponent = new TrackedEntitiesComponent(collection);
+					componentContainer.Add(trackedComponent);
+				}
+				trackedComponent._controllers.Add(ev.Controller);
 
-				setter.Value(trackedComponent.EntitiesReadonly);
+				setter.Value(trackedComponent.Entities);
 			}
 		}
 
@@ -76,8 +83,13 @@ namespace OtherEngine.Core.Controllers
 			var members = controller.GetType().GetMembersWithAttribute<PropertyInfo, TrackComponentAttribute>(flags);
 
 			foreach (var pair in members) {
-				var trackedComponentType = pair.Attribute.ComponentType;
-				var setter = pair.Member.MakePropertySetter<IReadOnlyCollection<Entity>>(controller, true);
+				var collectionType = pair.Member.PropertyType;
+				var trackedComponentType = collectionType.GetGenericArguments()[0];
+
+				var parameter = Expression.Parameter(typeof(EntityCollection));
+				var body = Expression.Call(Expression.Constant(controller), pair.Member.GetSetMethod(true), Expression.Convert(parameter, collectionType));
+				var setter = Expression.Lambda<Action<EntityCollection>>(body, parameter).Compile();
+
 				component.Setters.Add(trackedComponentType, setter);
 			}
 
@@ -95,8 +107,8 @@ namespace OtherEngine.Core.Controllers
 				var componentContainer = Game.Components.GetContainer(componentType);
 
 				var trackedComponent = componentContainer.GetOrThrow<TrackedEntitiesComponent>();
-				trackedComponent.Controllers.Remove(ev.Controller);
-				if (trackedComponent.Controllers.Count <= 0)
+				trackedComponent._controllers.Remove(ev.Controller);
+				if (trackedComponent._controllers.Count <= 0)
 					componentContainer.Remove(trackedComponent);
 
 				setter.Value(null);
@@ -128,41 +140,12 @@ namespace OtherEngine.Core.Controllers
 		#endregion
 
 
-		#region Component definitions
+		#region TrackingPropertiesComponent definition
 
 		class TrackingPropertiesComponent : Component
 		{
-			public Dictionary<Type, Action<IReadOnlyCollection<Entity>>> Setters { get; }
-				= new Dictionary<Type, Action<IReadOnlyCollection<Entity>>>();
-		}
-
-		/// <summary>
-		/// Attached to component containers when at least
-		/// one controller is tracking the component type.
-		/// </summary>
-		class TrackedEntitiesComponent : Component
-		{
-			/// <summary>
-			/// Gets the controllers currently tracking this component type.
-			/// </summary>
-			public HashSet<Controller> Controllers { get; } = new HashSet<Controller>();
-
-			/// <summary>
-			/// Gets the 
-			/// </summary>
-			public HashSet<Entity> Entities { get; } = new HashSet<Entity>();
-
-			/// <summary>
-			/// Gets an readonly collection of the Entities set.
-			/// This is what the controllers' tracking properties are set to.
-			/// </summary>
-			public IReadOnlyCollection<Entity> EntitiesReadonly { get; private set; }
-
-
-			public TrackedEntitiesComponent()
-			{
-				EntitiesReadonly = new ReadOnlyCollectionWrapper<Entity>(Entities);
-			}
+			public Dictionary<Type, Action<EntityCollection>> Setters { get; }
+				= new Dictionary<Type, Action<EntityCollection>>();
 		}
 
 		#endregion
