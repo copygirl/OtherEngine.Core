@@ -23,8 +23,24 @@ namespace OtherEngine.Core
 			Entity = entity;
 		}
 
+		#region Equals and GetHashCode
+
+		public override bool Equals(object obj)
+		{
+			var @ref = (obj as EntityRef);
+			return ((@ref != null) && (Entity == @ref.Entity));
+		}
+
+		public override int GetHashCode()
+		{
+			return Entity.GetHashCode();
+		}
+
+		#endregion
+
 		public static implicit operator Entity(EntityRef @ref) { return @ref?.Entity; }
 	}
+
 
 	#region EntityRef<> class definition
 
@@ -50,6 +66,23 @@ namespace OtherEngine.Core
 		{
 			Component = component;
 		}
+
+		#region Equals and GetHashCode
+
+		public override bool Equals(object obj)
+		{
+			var @ref = (obj as EntityRef<TComponent>);
+			return ((@ref != null) &&
+				(Entity == @ref.Entity) &&
+				(Component == @ref.Component));
+		}
+
+		public override int GetHashCode()
+		{
+			return (base.GetHashCode() ^ Component.GetHashCode());
+		}
+
+		#endregion
 
 		public static implicit operator EntityRef<TComponent>(Entity entity)
 		{
@@ -87,6 +120,24 @@ namespace OtherEngine.Core
 			First = first;
 			Second = second;
 		}
+
+		#region Equals and GetHashCode
+
+		public override bool Equals(object obj)
+		{
+			var @ref = (obj as EntityRef<TFirst, TSecond>);
+			return ((@ref != null) &&
+				(Entity == @ref.Entity) &&
+				(First == @ref.First) &&
+				(Second == @ref.Second));
+		}
+
+		public override int GetHashCode()
+		{
+			return (base.GetHashCode() ^ First.GetHashCode() ^ Second.GetHashCode());
+		}
+
+		#endregion
 
 		public static implicit operator EntityRef<TFirst, TSecond>(Entity entity)
 		{
@@ -152,6 +203,23 @@ namespace OtherEngine.Core
 			Second = second;
 			Third = third;
 		}
+
+		#region Equals and GetHashCode
+
+		public override bool Equals(object obj)
+		{
+			var @ref = (obj as EntityRef<TFirst, TSecond>);
+			return ((@ref != null) && (Entity == @ref.Entity) &&
+				(First == @ref.First) && (Second == @ref.Second));
+		}
+
+		public override int GetHashCode()
+		{
+			return (base.GetHashCode() ^ First.GetHashCode() ^
+				Second.GetHashCode() ^ Third.GetHashCode());
+		}
+
+		#endregion
 
 		public static implicit operator EntityRef<TFirst, TSecond, TThird>(Entity entity)
 		{
@@ -262,6 +330,7 @@ namespace OtherEngine.Core
 	}
 
 	#endregion
+
 
 	public static class EntityRefExtensions
 	{
