@@ -1,4 +1,5 @@
 ﻿using System;
+using OtherEngine.Core.Components;
 
 namespace OtherEngine.Core
 {
@@ -377,6 +378,22 @@ namespace OtherEngine.Core
 			ComponentCheckAndAdd<TSecond>(entity, second, "second");
 			ComponentCheckAndAdd<TThird>(entity, third, "third");
 			return new EntityRef<TFirst, TSecond, TThird>(entity, first, second, third);
+		}
+
+
+		/// <summary>
+		/// Adds TypeComponent with its value set to the name of
+		/// the specified component and the component itself to an
+		/// entity and returns it as an EntityRef&lt;TComponent&gt;.
+		/// </summary>
+		public static EntityRef<TComponent> AddTypeRef<TComponent>(
+			this Entity entity, TComponent component)
+			where TComponent : Component
+		{
+			if (entity == null) throw new ArgumentNullException("entity");
+			if (component == null) throw new ArgumentNullException("component");
+			entity.Add(new TypeComponent { Value = component.Name });
+			return entity.AddRef(component);
 		}
 
 
