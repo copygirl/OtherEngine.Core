@@ -335,6 +335,8 @@ namespace OtherEngine.Core
 
 	public static class EntityRefExtensions
 	{
+		#region AddRef<...> methods
+
 		/// <summary>
 		/// Adds a component to an entity and
 		/// returns it as an EntityRef&lt;TComponent&gt;.
@@ -381,6 +383,23 @@ namespace OtherEngine.Core
 		}
 
 
+		static void ComponentCheckAndAdd<TComponent>(Entity entity, TComponent component, string paramName)
+			where TComponent : Component
+		{
+			if (component == null)
+				throw new ArgumentNullException(paramName);
+			if (typeof(TComponent) != component.GetType())
+				throw new ArgumentException(string.Format(
+					"{0} isn't the same type as {1}",
+					Component.ToString(typeof(TComponent)), component),
+					"T" + char.ToUpper(paramName[0]) + paramName.Substring(1));
+			entity.Add(component);
+		}
+
+		#endregion
+
+		#region AddTypeRef<...> methods
+
 		/// <summary>
 		/// Adds TypeComponent with its value set to the name of
 		/// the specified component and the component itself to an
@@ -396,19 +415,40 @@ namespace OtherEngine.Core
 			return entity.AddRef(component);
 		}
 
-
-		static void ComponentCheckAndAdd<TComponent>(Entity entity, TComponent component, string paramName)
-			where TComponent : Component
+		/// <summary>
+		/// Adds TypeComponent with its value set to the name of
+		/// the first component and the components themselves to an
+		/// entity and returns it as an EntityRef&lt;TFirst, TSecond&gt;.
+		/// </summary>
+		public static EntityRef<TFirst, TSecond> AddTypeRef<TFirst, TSecond>(
+			this Entity entity, TFirst first, TSecond second)
+			where TFirst : Component
+			where TSecond : Component
 		{
-			if (component == null)
-				throw new ArgumentNullException(paramName);
-			if (typeof(TComponent) != component.GetType())
-				throw new ArgumentException(string.Format(
-					"{0} isn't the same type as {1}",
-					Component.ToString(typeof(TComponent)), component),
-					"T" + char.ToUpper(paramName[0]) + paramName.Substring(1));
-			entity.Add(component);
+			if (entity == null) throw new ArgumentNullException("entity");
+			if (first == null) throw new ArgumentNullException("first");
+			entity.Add(new TypeComponent { Value = first.Name });
+			return entity.AddRef(first, second);
 		}
+
+		/// <summary>
+		/// Adds TypeComponent with its value set to the name of
+		/// the first component and the components themselves to an
+		/// entity and returns it as an EntityRef&lt;TFirst, TSecond&gt;.
+		/// </summary>
+		public static EntityRef<TFirst, TSecond, TThird> AddTypeRef<TFirst, TSecond, TThird>(
+			this Entity entity, TFirst first, TSecond second, TThird third)
+			where TFirst : Component
+			where TSecond : Component
+			where TThird : Component
+		{
+			if (entity == null) throw new ArgumentNullException("entity");
+			if (first == null) throw new ArgumentNullException("first");
+			entity.Add(new TypeComponent { Value = first.Name });
+			return entity.AddRef(first, second, third);
+		}
+
+		#endregion
 	}
 }
 
