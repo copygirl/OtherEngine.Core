@@ -39,6 +39,8 @@ namespace OtherEngine.Core
 
 		#endregion
 
+		public override string ToString() { return Entity.ToString(); }
+
 		public static implicit operator Entity(EntityRef @ref) { return @ref?.Entity; }
 	}
 
