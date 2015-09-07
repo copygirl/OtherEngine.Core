@@ -7,7 +7,7 @@ namespace OtherEngine.Core.Hierarchy
 {
 	public static class EntityHierarchyExtensions
 	{
-		#region Get parent / children
+		#region Get parent / children / label
 
 		/// <summary>
 		/// Returns the parent of this entity, null if none.
@@ -48,6 +48,17 @@ namespace OtherEngine.Core.Hierarchy
 				throw new ArgumentNullException("entity");
 
 			return entity.Get<HierarchyComponent>()?[label];
+		}
+
+		/// <summary>
+		/// Returns this entity's label, null if none.
+		/// </summary>
+		public static string GetLabel(this Entity entity)
+		{
+			if (entity == null)
+				throw new ArgumentNullException("entity");
+
+			return entity.Get<HierarchyLabelComponent>()?.Value;
 		}
 
 		#endregion
@@ -111,7 +122,7 @@ namespace OtherEngine.Core.Hierarchy
 
 		#endregion
 
-		#region Group related
+		#region Adding group entities
 
 		/// <summary>
 		/// Adds a (labeled) group entity with the specified name to the parent.
