@@ -23,6 +23,10 @@ namespace OtherEngine.Core.Tracking
 	{
 		public override void Validate(ICustomAttributeProvider target)
 		{
+			if (!((MemberInfo)target).DeclaringType.IsSubclassOf(typeof(Controller)))
+				throw new AttributeUsageException(this, target, string.Format(
+					"{0} is not declared on a Controller", target.GetName()));
+			
 			var property = (PropertyInfo)target;
 			if (!property.PropertyType.Is(typeof(EntityCollection<>)))
 				throw new AttributeUsageException(this, target, string.Format(

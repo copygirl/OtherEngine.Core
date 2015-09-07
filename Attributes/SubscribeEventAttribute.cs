@@ -28,6 +28,10 @@ namespace OtherEngine.Core.Attributes
 	{
 		public override void Validate(ICustomAttributeProvider target)
 		{
+			if (!((MemberInfo)target).DeclaringType.IsSubclassOf(typeof(Controller)))
+				throw new AttributeUsageException(this, target, string.Format(
+					"{0} is not declared on a Controller", target.GetName()));
+
 			// Get the event type for this target (method or property).
 			// Throws an exception if there's something wrong with the
 			// definition of that member.
