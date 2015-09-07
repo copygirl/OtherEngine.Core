@@ -108,6 +108,8 @@ namespace OtherEngine.Core.Managers
 					var queue = Activator.CreateInstance(typeof(EventQueue<>).MakeGenericType(eventType));
 					action = (Action<Event>)Delegate.CreateDelegate(typeof(Action<Event>), queue, "Push");
 
+					property.SetValue(controller, queue);
+
 				}
 
 				component.Value.Add(new EventSubscription(eventType, action));
