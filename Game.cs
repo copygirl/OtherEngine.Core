@@ -1,35 +1,66 @@
-﻿using OtherEngine.Core.Managers;
-using OtherEngine.Core.Components;
+﻿using OtherEngine.ES;
+using System;
 
 namespace OtherEngine.Core
 {
 	public class Game
 	{
-		public ComponentManager Components { get; private set; }
+		/// <summary> Gets the main GameTimeline of this game instance.
+		///           This contains all information about the current
+		///           (and possible past and future) game state. </summary>
+		public GameTimeline Timeline { get; private set; }
 
-		public ControllerManager Controllers { get; private set; }
+		/// <summary> Gets the module controller of this game instance. </summary>
+		public ModuleController Modules { get; private set; }
 
-		public EventManager Events { get; private set; }
+		/// <summary> Gets the processor controller of this game instance. </summary>
+		public ProcessorController Processors { get; private set; }
 
-		public ModuleManager Modules { get; private set; }
+		/// <summary> Gets the thread controller of this game instance. </summary>
+		public ThreadController Threads { get; private set; }
 
 
-		public Entity Hierarchy { get; private set; }
+		/// <summary> Gets the current state of the game. </summary>
+		public GameState State { get; private set; }
 
 
 		public Game()
 		{
-			Components = new ComponentManager(this);
-			Controllers = new ControllerManager(this);
-			Events = new EventManager(this);
-			Modules = new ModuleManager(this);
+			Timeline = new GameTimeline();
+			Modules = new ModuleController(this);
+			Processors = new ProcessorController(this);
+			Threads = new ThreadController(this);
 
-			Hierarchy = new Entity(this);
-
+			State = GameState.Initializing;
 			Modules.Load(typeof(Game).Assembly);
-
-			Hierarchy.Add(new TypeComponent { Value = "Game" });
 		}
+
+
+		public void Start()
+		{
+			if (State != GameState.Initializing)
+				throw new InvalidOperationException("Game isn't initializing");
+			
+			State = GameState.Running;
+			Processors.Enable();
+			Threads.Start();
+		}
+
+		public void Stop()
+		{
+			if (State != GameState.Running)
+				throw new InvalidOperationException("Game isn't running");
+			
+			State = GameState.Stopped;
+		}
+	}
+
+	public enum GameState
+	{
+		Invalid,
+		Initializing,
+		Running,
+		Stopped
 	}
 }
 
